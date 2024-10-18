@@ -26,15 +26,15 @@
  ### SOLID
 
 ## Herramientas :toolbox:
- ### C#
- ### .NET 8 
- ### Entity Framework Core 
- ### LINQ
- ### EmailKit
- ### Vonage
- ### JWT
- ### Fluent Validator
- ### Cryptography
+ - C#
+ - .NET 8 
+ - Entity Framework Core 
+ - LINQ
+ - EmailKit
+ - Vonage
+ - JWT
+ - Fluent Validator
+ - Cryptography
  
 ## Autores :astronaut:	
 ### Jorge Gomez
