@@ -38,14 +38,14 @@
  
 ## Autores :astronaut:	
 ### Jorge Gomez
- #### Backend Developer
+ - Backend Developer
 ### Daniel Nina
- #### Backend Developer
+ - Backend Developer
 ### Ezequiel Feola
- #### Backend Development Leader
- #### DevOps
+ - Backend Development Leader
+ - DevOps
 ### Carlos Daniel Jimenez
- #### Quality Assurance
+ - Quality Assurance
 ### Gonzalo Rosofsky 
- #### Project Manager
- #### Backend Developer
+ - Project Manager
+ - Backend Developer
