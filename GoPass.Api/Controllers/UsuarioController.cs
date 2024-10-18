@@ -56,14 +56,7 @@ namespace GoPass.API.Controllers
                      { "UrlConfirmacion", confirmationUrl }
                  };
 
-                string contenidoPlantilla = await _templateService.ObtenerContenidoTemplateAsync("VerifyEmail", valoresReemplazo);
-                string emailSubject = "Confirmacion de cuenta";
-
-                EmailValidationRequestDto emailConfig = new();
-
-                EmailValidationRequestDto emailToSend = emailConfig.AssignEmailValues(userToRegister.Email, emailSubject, contenidoPlantilla);
-
-                bool enviado = await _emailService.SendVerificationEmailAsync(emailToSend);
+                bool enviado = await _emailService.SendEmailAsync(valoresReemplazo);
 
                 return Ok(registeredUser);
             }

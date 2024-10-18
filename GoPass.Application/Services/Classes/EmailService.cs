@@ -5,6 +5,7 @@ using MimeKit.Text;
 using MailKit.Net.Smtp;
 using GoPass.Application.Services.Interfaces;
 using GoPass.Domain.DTOs.Request.NotificationDTOs;
+using GoPass.Application.Utilities.Mappers;
 
 namespace GoPass.Application.Services.Classes
 {
@@ -16,6 +17,20 @@ namespace GoPass.Application.Services.Classes
         private static string _From = "Autenticacion";
         private static string _Email = "automatizaciones.sas@gmail.com";
         private static string _Password = "nnkyigaljcvbydhi";
+        private readonly ITemplateService _templateService;
+
+        public EmailService(ITemplateService templateService)
+        {
+            _templateService = templateService;
+        }
+
+        public async Task<bool> SendEmailAsync(string templateName, string subject, Dictionary<string, string> valoresReemplazo, string recipientEmail)
+        {
+            string contenidoPlantilla = await _templateService.ObtenerContenidoTemplateAsync(templateName, valoresReemplazo);
+            EmailValidationRequestDto emailConfig = new();
+            EmailValidationRequestDto emailToSend = emailConfig.AssignEmailValues(recipientEmail, subject, contenidoPlantilla);
+            return await SendVerificationEmailAsync(emailToSend);
+        }
 
         public async Task<bool> SendVerificationEmailAsync(EmailValidationRequestDto emailValidationRequestDto)
         {
