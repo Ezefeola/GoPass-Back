@@ -12,7 +12,7 @@
 - SQL Server 2022.
 - Visual Studio o Visual Studio Code o tambien desde CMD, a eleccion.
 
-## Practicas aplicadas 
+## Practicas aplicadas 📖
  ### Clean Architecture
  ### Design Patterns
   #### Repositories
