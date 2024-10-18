@@ -104,7 +104,8 @@ namespace GoPass.API.Controllers
             {
                 _logger.LogInformation($"Token recibido para confirmación: {token}");
 
-                int userIdParsed = await _usuarioService.CleanTokenAsync(token);
+                string userIdObtainedString = await _usuarioService.CleanTokenAsync(token);
+                int userIdParsed = int.Parse(userIdObtainedString);
                 _logger.LogInformation($"ID de usuario obtenido del token: {userIdParsed}");
 
                 if (userIdParsed <= 0)

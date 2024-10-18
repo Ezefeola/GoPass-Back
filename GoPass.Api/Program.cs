@@ -103,6 +103,7 @@ builder.Services.AddHttpClient<IGopassHttpClientService, GopassHttpClientService
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
