@@ -77,9 +77,7 @@ namespace GoPass.API.Controllers
         {
             try
             {
-                string authorizationHeader = Request.Headers["Authorization"].ToString();
-                string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(authorizationHeader);
-                int userId = int.Parse(userIdObtainedString);
+                int userId = await _usuarioService.GetUserIdFromTokenAsync();
 
                 bool validUserCredentials = await _usuarioService.ValidateUserCredentialsToPublishTicket(userId);
 
@@ -107,9 +105,7 @@ namespace GoPass.API.Controllers
         [HttpPut("comprar-entrada")]
         public async Task<IActionResult> BuyTicket(BuyEntradaRequestDto buyEntradaRequestDto)
         {
-            string authorizationHeader = Request.Headers["Authorization"].ToString();
-            string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(authorizationHeader);
-            int userId = int.Parse(userIdObtainedString);
+            int userId = await _usuarioService.GetUserIdFromTokenAsync();
 
             Reventa resaleDb = await _reventaService.GetResaleByEntradaIdAsync(buyEntradaRequestDto.EntradaId);
 

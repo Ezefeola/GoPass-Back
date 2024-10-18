@@ -12,5 +12,6 @@ namespace GoPass.Application.Services.Interfaces
     {
        Task<bool> SendVerificationEmailAsync(EmailValidationRequestDto emailValidationRequestDto);
        Task<bool> SendNotificationEmailAsync(NotificationEmailRequestDto notificationEmailRequestDto);
+       Task<bool> SetEmailParametersAsync(string templateName, string subject, Dictionary<string, string> valoresReemplazo, string recipientEmail);
     }
 }

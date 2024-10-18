@@ -55,8 +55,11 @@ namespace GoPass.API.Controllers
                      { "Nombre", registeredUser.Nombre! },
                      { "UrlConfirmacion", confirmationUrl }
                  };
-
-                bool enviado = await _emailService.SendEmailAsync(valoresReemplazo);
+                string contenidoPlantilla = await _templateService.ObtenerContenidoTemplateAsync("VerifyEmail", valoresReemplazo);
+                string emailSubject = "Confirmacion de cuenta";
+                EmailValidationRequestDto emailConfig = new();
+                EmailValidationRequestDto emailToSend = emailConfig.AssignEmailValues(userToRegister.Email, emailSubject, contenidoPlantilla);
+                bool enviado = await _emailService.SendVerificationEmailAsync(emailToSend);
 
                 return Ok(registeredUser);
             }
@@ -101,16 +104,14 @@ namespace GoPass.API.Controllers
             {
                 _logger.LogInformation($"Token recibido para confirmación: {token}");
 
-                string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(token);
-                _logger.LogInformation($"UserID obtenido del token: {userIdObtainedString}");
+                int userIdParsed = await _usuarioService.GetUserIdFromTokenAsync();
+                _logger.LogInformation($"ID de usuario obtenido del token: {userIdParsed}");
 
-                if (!int.TryParse(userIdObtainedString, out int userIdParsed) || userIdParsed <= 0)
+                if (userIdParsed <= 0)
                 {
                     _logger.LogWarning("ID de usuario no válido.");
                     return BadRequest("ID de usuario no válido.");
                 }
-
-                _logger.LogInformation($"ID de usuario obtenido y parseado: {userIdParsed}");
 
                 var user = await _usuarioService.GetByIdAsync(userIdParsed);
                 if (user is null)
@@ -129,6 +130,7 @@ namespace GoPass.API.Controllers
                 return StatusCode(500, "Error interno del servidor.");
             }
         }
+
 
         [HttpPost("solicitar-restablecimiento")]
         public async Task<IActionResult> SolicitarRestablecimiento([FromBody] PasswordResetRequestDto passwordResetRequestDto)
@@ -215,9 +217,7 @@ namespace GoPass.API.Controllers
         [HttpGet("user-credentials")]
         public async Task<IActionResult> GetUserCredentials()
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(authHeader);
-            int userId = int.Parse(userIdObtainedString);
+            int userId = await _usuarioService.GetUserIdFromTokenAsync();
             Usuario dbExistingUserCredentials = await _usuarioService.GetByIdAsync(userId);
 
             dbExistingUserCredentials.DNI = _aesGcmCryptoService.Decrypt(dbExistingUserCredentials.DNI!);
@@ -234,9 +234,7 @@ namespace GoPass.API.Controllers
 
             try
             {
-                string authHeader = HttpContext.Request.Headers["Authorization"].ToString();
-                string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(authHeader);
-                int userId = int.Parse(userIdObtainedString);
+                int userId = await _usuarioService.GetUserIdFromTokenAsync();
                 Usuario dbExistingUserCredentials = await _usuarioService.GetByIdAsync(userId);
 
                 if (await _usuarioService.VerifyDniExistsAsync(modifyUsuarioRequestDto.DNI, userId))
@@ -288,9 +286,7 @@ namespace GoPass.API.Controllers
         [HttpPost("verify-provided-code")]
         public async Task<IActionResult> VerifyVonageCodeProvided(int vonageCode)
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(authHeader);
-            int userId = int.Parse(userIdObtainedString);
+            int userId = await _usuarioService.GetUserIdFromTokenAsync();
             Usuario dbExistingUserCredentials = await _usuarioService.GetByIdAsync(userId);
 
             bool code = _vonageSmsService.VerifyCode(vonageCode);
@@ -309,9 +305,7 @@ namespace GoPass.API.Controllers
         {
             try
             {
-                string authHeader = HttpContext.Request.Headers["Authorization"].ToString();
-                string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(authHeader);
-                int userId = int.Parse(userIdObtainedString);
+               int userId = await _usuarioService.GetUserIdFromTokenAsync();
 
                 List<Entrada> resales = await _entradaService.GetTicketsInResaleByUserIdAsync(userId);
 
@@ -329,9 +323,7 @@ namespace GoPass.API.Controllers
         {
             try
             {
-                string authHeader = HttpContext.Request.Headers["Authorization"].ToString();
-                string userIdObtainedString = await _usuarioService.GetUserIdByTokenAsync(authHeader);
-                int userId = int.Parse(userIdObtainedString);
+                int userId = await _usuarioService.GetUserIdFromTokenAsync();
 
                 List < HistorialCompraVenta> resales = await _reventaService.GetBoughtTicketsByCompradorIdAsync(userId);
 

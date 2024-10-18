@@ -24,7 +24,7 @@ namespace GoPass.Application.Services.Classes
             _templateService = templateService;
         }
 
-        public async Task<bool> SendEmailAsync(string templateName, string subject, Dictionary<string, string> valoresReemplazo, string recipientEmail)
+        public async Task<bool> SetEmailParametersAsync(string templateName, string subject, Dictionary<string, string> valoresReemplazo, string recipientEmail)
         {
             string contenidoPlantilla = await _templateService.ObtenerContenidoTemplateAsync(templateName, valoresReemplazo);
             EmailValidationRequestDto emailConfig = new();
