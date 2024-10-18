@@ -54,7 +54,7 @@ namespace GoPass.Application.Services.Classes
 
         public async Task<HistorialCompraVenta> CreateHistorialCompraVenta(Entrada ticket, Reventa resale, int compradorId)
         {
-            HistorialCompraVenta historialCompraVentaToCreate = ReventaMappers.MapToHistorialCompraVenta(ticket, resale, compradorId);
+            HistorialCompraVenta historialCompraVentaToCreate = HistorialCompraVentaMappers.MapToHistorialCompraVenta(ticket, resale, compradorId);
 
             await _historialCompraVentaRepository.Create(historialCompraVentaToCreate);
 
