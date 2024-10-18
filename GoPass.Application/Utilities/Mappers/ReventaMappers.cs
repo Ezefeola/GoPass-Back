@@ -50,7 +50,7 @@ namespace GoPass.Application.Utilities.Mappers
             };
         }
         
-        public static HistorialCompraVenta FromHistorialCompraVentaRequestToModel(Entrada ticket, Reventa resale)
+        public static HistorialCompraVenta MapToHistorialCompraVenta(Entrada ticket, Reventa resale, int compradorId)
         {
             return new HistorialCompraVenta
             {
@@ -63,7 +63,7 @@ namespace GoPass.Application.Utilities.Mappers
                 Verificada = ticket.Verificada,
                 EntradaId = resale.EntradaId,
                 VendedorId = resale.VendedorId,
-                CompradorId = resale.CompradorId,
+                CompradorId = compradorId,
                 Precio = resale.Precio,
                 ResaleDetail = resale.ResaleDetail
             };
