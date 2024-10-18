@@ -33,6 +33,8 @@
  ### EmailKit
  ### Vonage
  ### JWT
+ ### Fluent Validator
+ ### Cryptography
  
 ## Autores :astronaut:	
 ### Jorge Gomez
