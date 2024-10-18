@@ -1,10 +1,12 @@
 ﻿using Azure.Core;
 using GoPass.Application.Services.Interfaces;
+using GoPass.Application.Utilities.Mappers;
 using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
 using GoPass.Domain.Models;
 using GoPass.Infrastructure.Repositories.Classes;
 using GoPass.Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace GoPass.Application.Services.Classes
 {
@@ -45,29 +47,21 @@ namespace GoPass.Application.Services.Classes
 
             Entrada ticket = await _entradaRepository.GetById(resale.EntradaId);
 
-            HistorialCompraVenta historialCompra = new HistorialCompraVenta
-            {
-                GameName = ticket.GameName,
-                Description = ticket.Description,
-                Image = ticket.Image,
-                Address = ticket.Address,
-                EventDate = ticket.EventDate,
-                CodigoQR = ticket.CodigoQR,
-                Verificada = ticket.Verificada,
-                EntradaId = ticket.Id,
-                VendedorId = resale.VendedorId,
-                CompradorId = compradorId,
-                FechaReventa = DateTime.Now,
-                Precio = resale.Precio,
-                ResaleDetail = resale.ResaleDetail
-            };
+            HistorialCompraVenta historialCompraVenta = await CreateHistorialCompraVenta(ticket, resale, compradorId);
 
-            await _historialCompraVentaRepository.Create(historialCompra);
+            return historialCompraVenta;
+        }
 
-            await _reventaRepository.Delete(reventaId);
+        public async Task<HistorialCompraVenta> CreateHistorialCompraVenta(Entrada ticket, Reventa resale, int compradorId)
+        {
+            HistorialCompraVenta historialCompraVentaToCreate = ReventaMappers.FromHistorialCompraVentaRequestToModel(ticket, resale);
+
+            await _historialCompraVentaRepository.Create(historialCompraVentaToCreate);
+
+            await _reventaRepository.Delete(resale.Id);
             await _entradaRepository.Delete(resale.EntradaId);
 
-            return historialCompra;
+            return historialCompraVentaToCreate;
         }
     }
 }

@@ -49,5 +49,24 @@ namespace GoPass.Application.Utilities.Mappers
                 VendedorId = reventa.VendedorId,
             };
         }
+        
+        public static HistorialCompraVenta FromHistorialCompraVentaRequestToModel(Entrada ticket, Reventa resale)
+        {
+            return new HistorialCompraVenta
+            {
+                GameName = ticket.GameName,
+                Description = ticket.Description,
+                Image = ticket.Image,
+                Address = ticket.Address,
+                EventDate = ticket.EventDate,
+                CodigoQR = ticket.CodigoQR,
+                Verificada = ticket.Verificada,
+                EntradaId = resale.EntradaId,
+                VendedorId = resale.VendedorId,
+                CompradorId = resale.CompradorId,
+                Precio = resale.Precio,
+                ResaleDetail = resale.ResaleDetail
+            };
+        }
     }
 }
