@@ -100,7 +100,14 @@ namespace GoPass.Application.Services.Classes
         public async Task<int> GetUserIdFromTokenAsync()
         {
             string authHeader = _httpContextAccessor.HttpContext!.Request.Headers["Authorization"].ToString();
-            string cleanToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring("Bearer ".Length) : authHeader;
+            string decodedToken = await CleanTokenAsync(authHeader);
+
+            return int.Parse(decodedToken);
+        }
+        public async Task<string> CleanTokenAsync(string token)
+        {
+            string cleanToken = token.StartsWith("Bearer ") ? token.Substring("Bearer ".Length) : token;
+
             if (string.IsNullOrWhiteSpace(cleanToken))
             {
                 throw new Exception("Token nulo o vacío.");
@@ -108,7 +115,7 @@ namespace GoPass.Application.Services.Classes
 
             string decodedToken = await _tokenService.DecodeToken(cleanToken!);
 
-            return int.Parse(decodedToken);
+            return decodedToken;
         }
 
         public async Task<bool> ConfirmResetPasswordAsync(bool reset, string newPassword, string userEmail)
