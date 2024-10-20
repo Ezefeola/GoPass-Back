@@ -1,4 +1,5 @@
-﻿using GoPass.Application.Services.Classes;
+﻿using GoPass.API.Middlewares;
+using GoPass.Application.Services.Classes;
 using GoPass.Application.Services.Interfaces;
 using GoPass.Application.Utilities.Mappers;
 using GoPass.Application.Validators.Users;

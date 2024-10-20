@@ -3,7 +3,6 @@ using GoPass.Domain.Models;
 using GoPass.Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json.Linq;
 
 namespace GoPass.Application.Services.Classes
 {
@@ -100,9 +99,9 @@ namespace GoPass.Application.Services.Classes
         public async Task<int> GetUserIdFromTokenAsync()
         {
             string authHeader = _httpContextAccessor.HttpContext!.Request.Headers["Authorization"].ToString();
-            string decodedToken = await CleanTokenAsync(authHeader);
+            string userId = await CleanTokenAsync(authHeader);
 
-            return int.Parse(decodedToken);
+            return int.Parse(userId);
         }
         public async Task<string> CleanTokenAsync(string token)
         {
@@ -137,7 +136,6 @@ namespace GoPass.Application.Services.Classes
             }
             catch (Exception ex)
             {
-                //throw new Exception(ex);
                 return false;
             }
         }

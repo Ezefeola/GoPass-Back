@@ -13,6 +13,8 @@ using GoPass.Infrastructure.Data;
 using System.Reflection;
 using GoPass.Application.Notifications.Classes;
 using GoPass.Domain.DTOs.Request.NotificationDTOs;
+using GoPass.API.Middlewares;
+using GoPass.Infrastructure.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -113,6 +115,7 @@ builder.Services.AddScoped<ITicketMasterService, TicketSimulatorService>();
 builder.Services.AddScoped<IAesGcmCryptoService, AesGcmCryptoService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddSingleton<GoPass.Application.Notifications.Interfaces.ISubject<string>, Subject<string>>();
 builder.Services.AddSingleton<IVonageSmsService, VonageSmsService>();

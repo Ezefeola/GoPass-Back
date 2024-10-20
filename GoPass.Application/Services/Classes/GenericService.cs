@@ -2,7 +2,6 @@
 using GoPass.Application.Services.Interfaces;
 using GoPass.Domain.DTOs.Request.PaginationDTOs;
 using GoPass.Domain.Models;
-using GoPass.Infrastructure.Repositories.Classes;
 using GoPass.Infrastructure.Repositories.Interfaces;
 
 namespace GoPass.Application.Services.Classes
@@ -15,6 +14,7 @@ namespace GoPass.Application.Services.Classes
         {
             _genericRepository = genericRepository;
         }
+
         public async Task<List<T>> GetAllAsync()
         {
             return await _genericRepository.GetAll();
