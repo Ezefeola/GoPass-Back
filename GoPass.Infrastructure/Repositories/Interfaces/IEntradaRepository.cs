@@ -1,11 +1,9 @@
-﻿
-using GoPass.Domain.Models;
+﻿using GoPass.Domain.Models;
 
-namespace GoPass.Infrastructure.Repositories.Interfaces
+namespace GoPass.Infrastructure.Repositories.Interfaces;
+
+public interface IEntradaRepository : IGenericRepository<Entrada>
 {
-    public interface IEntradaRepository : IGenericRepository<Entrada>
-    {
-        Task<bool> VerifyQrCodeExists(string qrCode);
-        Task<List<Entrada>> GetTicketsInResaleByUserId(int userId);
-    }
+    Task<bool> VerifyQrCodeExists(string qrCode);
+    Task<List<Entrada>> GetTicketsInResaleByUserId(int userId);
 }

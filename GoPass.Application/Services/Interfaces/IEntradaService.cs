@@ -1,13 +1,11 @@
-﻿
-using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
+﻿using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
 using GoPass.Domain.Models;
 
-namespace GoPass.Application.Services.Interfaces
+namespace GoPass.Application.Services.Interfaces;
+
+public interface IEntradaService : IGenericService<Entrada>
 {
-    public interface IEntradaService : IGenericService<Entrada>
-    {
-        Task<Entrada> PublishTicket(PublishEntradaRequestDto publishEntradaRequestDto, int userId);
-        Task<bool> VerifyQrCodeAsync(string qrCode);
-        Task<List<Entrada>> GetTicketsInResaleByUserIdAsync(int userId);
-    }
+    Task<Entrada> PublishTicket(PublishEntradaRequestDto publishEntradaRequestDto, int userId, CancellationToken cancellationToken);
+    Task<bool> VerifyQrCodeAsync(string qrCode);
+    Task<List<Entrada>> GetTicketsInResaleByUserIdAsync(int userId);
 }

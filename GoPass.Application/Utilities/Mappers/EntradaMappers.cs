@@ -2,79 +2,78 @@
 using GoPass.Domain.DTOs.Response;
 using GoPass.Domain.Models;
 
-namespace GoPass.Application.Utilities.Mappers
+namespace GoPass.Application.Utilities.Mappers;
+
+public static class EntradaMappers
 {
-    public static class EntradaMappers
+    public static Entrada FromEntradaRequestToModel(this EntradaRequestDto entradaRequestDto)
     {
-        public static Entrada FromEntradaRequestToModel(this EntradaRequestDto entradaRequestDto)
+        return new Entrada
         {
-            return new Entrada
-            {
-                CodigoQR = entradaRequestDto.CodigoQR,
-                UsuarioId = entradaRequestDto.UsuarioId,
-                Verificada = entradaRequestDto.Verificada,
-            };
-        }
+            CodigoQR = entradaRequestDto.CodigoQR,
+            UsuarioId = entradaRequestDto.UsuarioId,
+            Verificada = entradaRequestDto.Verificada,
+        };
+    }
 
-        public static PublishEntradaRequestDto FromModelToPublishEntradaRequest(this Entrada entrada)
+    public static PublishEntradaRequestDto FromModelToPublishEntradaRequest(this Entrada entrada)
+    {
+        return new PublishEntradaRequestDto
         {
-            return new PublishEntradaRequestDto
-            {
-                Address = entrada.Address,
-                EventDate = entrada.EventDate,
-                GameName = entrada.GameName,
-                CodigoQR = entrada.CodigoQR,
-                Description = entrada.Description,
-                Image = entrada.Image,
-                Verificada = true
-            };
-        }
+            Address = entrada.Address,
+            EventDate = entrada.EventDate,
+            GameName = entrada.GameName,
+            CodigoQR = entrada.CodigoQR,
+            Description = entrada.Description,
+            Image = entrada.Image,
+            Verificada = true
+        };
+    }
 
-        public static Entrada FromPublishEntradaRequestToModel(this PublishEntradaRequestDto publishEntradaRequestDto)
+    public static Entrada FromPublishEntradaRequestToModel(this PublishEntradaRequestDto publishEntradaRequestDto)
+    {
+        return new Entrada
         {
-            return new Entrada
-            {
-                CodigoQR = publishEntradaRequestDto.CodigoQR,
-                Verificada = publishEntradaRequestDto.Verificada,
-                GameName = publishEntradaRequestDto.GameName,
-                Description = publishEntradaRequestDto.Description,
-                EventDate = publishEntradaRequestDto.EventDate,
-                Address = publishEntradaRequestDto.Address,
-                Image = publishEntradaRequestDto.Image
-            };
-        }
+            CodigoQR = publishEntradaRequestDto.CodigoQR,
+            Verificada = publishEntradaRequestDto.Verificada,
+            GameName = publishEntradaRequestDto.GameName,
+            Description = publishEntradaRequestDto.Description,
+            EventDate = publishEntradaRequestDto.EventDate,
+            Address = publishEntradaRequestDto.Address,
+            Image = publishEntradaRequestDto.Image
+        };
+    }
 
-        public static Entrada FromEntradaRequestToModel(this PublishEntradaRequestDto publishEntradaRequestDto, Entrada verifiedTicket, int userId)
+    public static Entrada FromEntradaRequestToModel(this PublishEntradaRequestDto publishEntradaRequestDto, Entrada verifiedTicket, int userId)
+    {
+        return new Entrada
         {
-            return new Entrada
-            {
-                Address = verifiedTicket.Address,
-                EventDate = verifiedTicket.EventDate,
-                GameName = verifiedTicket.GameName,
-                CodigoQR = verifiedTicket.CodigoQR,
-                Description = verifiedTicket.Description,
-                Image = verifiedTicket.Image,
-                UsuarioId = userId,
-                Verificada = true
-            };
-        }
+            Address = verifiedTicket.Address,
+            EventDate = verifiedTicket.EventDate,
+            GameName = verifiedTicket.GameName,
+            CodigoQR = verifiedTicket.CodigoQR,
+            Description = verifiedTicket.Description,
+            Image = verifiedTicket.Image,
+            UsuarioId = userId,
+            Verificada = true
+        };
+    }
 
-        public static Reventa FromBuyEntradaRequestToModel(this BuyEntradaRequestDto buyEntradaRequestDto)
+    public static Reventa FromBuyEntradaRequestToModel(this BuyEntradaRequestDto buyEntradaRequestDto)
+    {
+        return new Reventa
         {
-            return new Reventa
-            {
-                EntradaId = buyEntradaRequestDto.EntradaId
-            };
-        }
+            EntradaId = buyEntradaRequestDto.EntradaId
+        };
+    }
 
-        public static EntradaResponseDto FromPublishEntradaRequestToResponseDto(this Entrada entrada)
+    public static EntradaResponseDto FromPublishEntradaRequestToResponseDto(this Entrada entrada)
+    {
+        return new EntradaResponseDto
         {
-            return new EntradaResponseDto
-            {
-                CodigoQR = entrada.CodigoQR,
-                UsuarioId = entrada.UsuarioId,
-                Verificada = entrada.Verificada
-            };
-        }
+            CodigoQR = entrada.CodigoQR,
+            UsuarioId = entrada.UsuarioId,
+            Verificada = entrada.Verificada
+        };
     }
 }

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace GoPass.Application.Notifications.Classes;
 
-namespace GoPass.Application.Notifications.Classes
+public class NotificationService
 {
-    public class NotificationService
-    {
-    }
 }

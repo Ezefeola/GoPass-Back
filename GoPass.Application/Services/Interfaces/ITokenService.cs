@@ -1,10 +1,9 @@
 ﻿using GoPass.Domain.Models;
 
-namespace GoPass.Application.Services.Interfaces
+namespace GoPass.Application.Services.Interfaces;
+
+public interface ITokenService
 {
-    public interface ITokenService
-    {
-        string CreateToken(Usuario usuario);
-        Task<string> DecodeToken(string token);
-    }
+    string CreateToken(Usuario usuario);
+    Task<string> DecodeToken(string token);
 }

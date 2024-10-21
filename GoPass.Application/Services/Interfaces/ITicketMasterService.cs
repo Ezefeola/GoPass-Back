@@ -1,9 +1,8 @@
 ﻿using GoPass.Domain.Models;
 
-namespace GoPass.Application.Services.Interfaces
+namespace GoPass.Application.Services.Interfaces;
+
+public interface ITicketMasterService
 {
-    public interface ITicketMasterService
-    {
-        Task<Entrada> VerificarEntrada(string ticketId);
-    }
+    Task<Entrada> VerificarEntrada(string ticketId);
 }

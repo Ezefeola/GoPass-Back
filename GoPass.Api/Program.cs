@@ -15,6 +15,7 @@ using GoPass.Application.Notifications.Classes;
 using GoPass.Domain.DTOs.Request.NotificationDTOs;
 using GoPass.API.Middlewares;
 using GoPass.Infrastructure.UnitOfWork;
+using GoPass.Application.ServiceFacade;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -115,7 +116,7 @@ builder.Services.AddScoped<ITicketMasterService, TicketSimulatorService>();
 builder.Services.AddScoped<IAesGcmCryptoService, AesGcmCryptoService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IServiceFacade, ServiceFacade>();
 
 builder.Services.AddSingleton<GoPass.Application.Notifications.Interfaces.ISubject<string>, Subject<string>>();
 builder.Services.AddSingleton<IVonageSmsService, VonageSmsService>();
@@ -123,6 +124,7 @@ builder.Services.AddSingleton<IVonageSmsService, VonageSmsService>();
 builder.Services.AddTransient<GoPass.Application.Notifications.Interfaces.IObserver<NotificationEmailRequestDto>, BuyerEmailNotificationObserver>();
 builder.Services.AddTransient<GoPass.Application.Notifications.Interfaces.IObserver<NotificationEmailRequestDto>, SellerEmailNotificationObserver>();
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IReventaRepository, ReventaRepository>();
 builder.Services.AddScoped<IEntradaRepository, EntradaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
@@ -140,6 +142,8 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 app.UseCors();
+
+app.UseUserMiddlewares();
 
 app.UseAuthentication();
 app.UseAuthorization();

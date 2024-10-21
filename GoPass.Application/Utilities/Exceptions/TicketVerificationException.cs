@@ -1,10 +1,9 @@
-﻿namespace GoPass.Application.Utilities.Exceptions
+﻿namespace GoPass.Application.Utilities.Exceptions;
+
+public class TicketVerificationException : Exception
 {
-    public class TicketVerificationException : Exception
+    public TicketVerificationException(string message) : base(message)
     {
-        public TicketVerificationException(string message) : base(message)
-        {
-            
-        }
+        
     }
 }

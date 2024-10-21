@@ -1,7 +1,4 @@
-﻿using Xunit;
-using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Moq;
 using Microsoft.AspNetCore.Mvc;
 using GoPass.API.Controllers;
 using GoPass.Application.Services.Interfaces;

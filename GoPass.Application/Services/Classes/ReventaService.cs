@@ -1,68 +1,78 @@
 ﻿using GoPass.Application.Services.Interfaces;
 using GoPass.Application.Utilities.Mappers;
 using GoPass.Domain.Models;
-using GoPass.Infrastructure.Repositories.Interfaces;
 using GoPass.Infrastructure.UnitOfWork;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace GoPass.Application.Services.Classes
+namespace GoPass.Application.Services.Classes;
+
+public class ReventaService : GenericService<Reventa>, IReventaService
 {
-    public class ReventaService : GenericService<Reventa>, IReventaService
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ReventaService(IUnitOfWork unitOfWork) : base(unitOfWork.ReventaRepository)
     {
-        //private readonly IReventaRepository _reventaRepository;
-        //private readonly IEntradaRepository _entradaRepository;
-        //private readonly IHistorialCompraVentaRepository _historialCompraVentaRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public ReventaService(IUnitOfWork unitOfWork) : base(unitOfWork.ReventaRepository)
-        {
-            _unitOfWork = unitOfWork;
-        }
-        //public ReventaService(IReventaRepository reventaRepository, IEntradaRepository entradaRepository, 
-        //    IHistorialCompraVentaRepository historialCompraVentaRepository) : base(reventaRepository)
-        //{
-        //    _reventaRepository = reventaRepository;
-        //    _entradaRepository = entradaRepository;
-        //    _historialCompraVentaRepository = historialCompraVentaRepository;
-        //}
+    public async Task<Reventa> PublishTicketAsync(Reventa reventa, int sellerId, CancellationToken cancellationToken)        
+    {
+        Reventa resale = await _unitOfWork.ReventaRepository.Publish(reventa, sellerId);
 
-        public async Task<Reventa> PublishTicketAsync(Reventa reventa, int sellerId)        
-        {
-            return await _unitOfWork.ReventaRepository.Publish(reventa, sellerId);
-        }
+        await _unitOfWork.Complete(cancellationToken);
 
-        public async Task<Reventa> GetResaleByEntradaIdAsync(int entradaId)
-        {
-            return await _unitOfWork.ReventaRepository.GetResaleByEntradaId(entradaId);
-        }
+        return resale;
+    }
 
-        public async Task<List<HistorialCompraVenta>> GetBoughtTicketsByCompradorIdAsync(int compradorId)
-        {
-            List<HistorialCompraVenta> ticketsInresale = await _unitOfWork.HistorialCompraVentaRepository.GetBoughtTicketsByCompradorId(compradorId);
+    public async Task<Reventa> GetResaleByEntradaIdAsync(int entradaId)
+    {
+        return await _unitOfWork.ReventaRepository.GetResaleByEntradaId(entradaId);
+    }
 
-            return ticketsInresale;
-        }
+    public async Task<List<HistorialCompraVenta>> GetBoughtTicketsByCompradorIdAsync(int compradorId)
+    {
+        List<HistorialCompraVenta> ticketsInresale = await _unitOfWork.HistorialCompraVentaRepository.GetBoughtTicketsByCompradorId(compradorId);
 
-        public async Task<HistorialCompraVenta> BuyTicketAsync(int reventaId, int compradorId)
-        {
-            Reventa resale = await _unitOfWork.ReventaRepository.GetById(reventaId);
+        return ticketsInresale;
+    }
 
-            Entrada ticket = await _unitOfWork.EntradaRepository.GetById(resale.EntradaId);
+    public async Task<HistorialCompraVenta> BuyTicketAsync(int reventaId, int compradorId, CancellationToken cancellationToken)
+    {
+        Reventa resale = await _unitOfWork.ReventaRepository.GetById(reventaId);
 
-            HistorialCompraVenta historialCompraVenta = await CreateHistorialCompraVenta(ticket, resale, compradorId);
+        Entrada ticket = await _unitOfWork.EntradaRepository.GetById(resale.EntradaId);
 
-            return historialCompraVenta;
-        }
+        HistorialCompraVenta historialCompraVenta = await CreateHistorialCompraVenta(ticket, resale, compradorId, cancellationToken);
 
-        public async Task<HistorialCompraVenta> CreateHistorialCompraVenta(Entrada ticket, Reventa resale, int compradorId)
+
+
+        return historialCompraVenta;
+    }
+
+    public async Task<HistorialCompraVenta> CreateHistorialCompraVenta(Entrada ticket, Reventa resale, int compradorId, CancellationToken cancellationToken)
+    {
+        using IDbContextTransaction transaction = await _unitOfWork.BeginTransaction(cancellationToken);
+
+        try
         {
             HistorialCompraVenta historialCompraVentaToCreate = HistorialCompraVentaMappers.MapToHistorialCompraVenta(ticket, resale, compradorId);
+
 
             await _unitOfWork.HistorialCompraVentaRepository.Create(historialCompraVentaToCreate);
 
             await _unitOfWork.ReventaRepository.Delete(resale.Id);
             await _unitOfWork.EntradaRepository.Delete(resale.EntradaId);
 
+            await _unitOfWork.Complete(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
             return historialCompraVentaToCreate;
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
         }
     }
 }

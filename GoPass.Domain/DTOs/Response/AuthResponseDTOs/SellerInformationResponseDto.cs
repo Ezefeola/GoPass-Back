@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace GoPass.Domain.DTOs.Response.AuthResponseDTOs;
 
-namespace GoPass.Domain.DTOs.Response.AuthResponseDTOs
+public class SellerInformationResponseDto
 {
-    public class SellerInformationResponseDto
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; } = default!;
-        public string Image { get; set; } = default!;
-    }
+    public int Id { get; set; }
+    public string Nombre { get; set; } = default!;
+    public string Image { get; set; } = default!;
 }

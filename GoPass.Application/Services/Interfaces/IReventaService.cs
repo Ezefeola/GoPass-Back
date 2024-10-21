@@ -1,16 +1,12 @@
-﻿
-using GoPass.Domain.DTOs.Request.PaginationDTOs;
-using GoPass.Domain.Models;
-using System.Threading.Tasks;
+﻿using GoPass.Domain.Models;
 
-namespace GoPass.Application.Services.Interfaces
+namespace GoPass.Application.Services.Interfaces;
 
+
+public interface IReventaService : IGenericService<Reventa> 
 {
-    public interface IReventaService : IGenericService<Reventa> 
-    {
-        Task<Reventa> PublishTicketAsync(Reventa reventa, int sellerId);
-        Task<Reventa> GetResaleByEntradaIdAsync(int entradaId);
-        Task<HistorialCompraVenta> BuyTicketAsync(int reventaId, int compradorId);
-        Task<List<HistorialCompraVenta>> GetBoughtTicketsByCompradorIdAsync(int compradorId);
-    }
+    Task<Reventa> PublishTicketAsync(Reventa reventa, int sellerId, CancellationToken cancellationToken);
+    Task<Reventa> GetResaleByEntradaIdAsync(int entradaId);
+    Task<HistorialCompraVenta> BuyTicketAsync(int reventaId, int compradorId, CancellationToken cancellationToken);
+    Task<List<HistorialCompraVenta>> GetBoughtTicketsByCompradorIdAsync(int compradorId);
 }

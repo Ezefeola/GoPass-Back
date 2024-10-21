@@ -2,42 +2,42 @@
 using GoPass.Application.Utilities.Mappers;
 using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
 using GoPass.Domain.Models;
-using GoPass.Infrastructure.Repositories.Classes;
-using GoPass.Infrastructure.Repositories.Interfaces;
+using GoPass.Infrastructure.UnitOfWork;
 
-namespace GoPass.Application.Services.Classes
+namespace GoPass.Application.Services.Classes;
+
+public class EntradaService : GenericService<Entrada>, IEntradaService
 {
-    public class EntradaService : GenericService<Entrada>, IEntradaService
+    private readonly IUnitOfWork _unitOfWork;
+
+    public EntradaService(IUnitOfWork unitOfWork) : base(unitOfWork.EntradaRepository)
     {
-        private readonly IEntradaRepository _entradaRepository;
+        _unitOfWork = unitOfWork;
+    }
 
-        public EntradaService(IEntradaRepository entradaRepository) : base(entradaRepository)
-        {
-            _entradaRepository = entradaRepository;
-        }
+    public async Task<Entrada> PublishTicket(PublishEntradaRequestDto publishEntradaRequestDto, int userId, CancellationToken cancellationToken)
+    {
 
-        public async Task<Entrada> PublishTicket(PublishEntradaRequestDto publishEntradaRequestDto, int userId)
-        {
+        Entrada entradaExistingFaker = publishEntradaRequestDto.FromPublishEntradaRequestToModel();
+        Entrada entradaToCreate = publishEntradaRequestDto.FromEntradaRequestToModel(entradaExistingFaker, userId);
 
-            Entrada entradaExistingFaker = publishEntradaRequestDto.FromPublishEntradaRequestToModel();
-            Entrada entradaToCreate = publishEntradaRequestDto.FromEntradaRequestToModel(entradaExistingFaker, userId);
+        await _unitOfWork.EntradaRepository.Create(entradaToCreate);
 
-            await _genericRepository.Create(entradaToCreate);
+        await _unitOfWork.Complete(cancellationToken);
 
-            return entradaToCreate;
-        }
+        return entradaToCreate;
+    }
 
-        public async Task<bool> VerifyQrCodeAsync(string qrCode)
-        {
-            bool ticketQrCode = await _entradaRepository.VerifyQrCodeExists(qrCode);
+    public async Task<bool> VerifyQrCodeAsync(string qrCode)
+    {
+        bool ticketQrCode = await _unitOfWork.EntradaRepository.VerifyQrCodeExists(qrCode);
 
-            return ticketQrCode!;
-        }
-        public async Task<List<Entrada>> GetTicketsInResaleByUserIdAsync(int userId)
-        {
-            List<Entrada> ticketsInresale = await _entradaRepository.GetTicketsInResaleByUserId(userId);
+        return ticketQrCode!;
+    }
+    public async Task<List<Entrada>> GetTicketsInResaleByUserIdAsync(int userId)
+    {
+        List<Entrada> ticketsInresale = await _unitOfWork.EntradaRepository.GetTicketsInResaleByUserId(userId);
 
-            return ticketsInresale;
-        }
+        return ticketsInresale;
     }
 }

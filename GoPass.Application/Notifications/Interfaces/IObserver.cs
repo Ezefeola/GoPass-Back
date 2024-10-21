@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace GoPass.Application.Notifications.Interfaces;
 
-namespace GoPass.Application.Notifications.Interfaces
+public interface IObserver<T>
 {
-    public interface IObserver<T>
-    {
-        Task Update(T subject);
-    }
+    Task Update(T subject);
 }
