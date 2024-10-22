@@ -7,13 +7,9 @@ namespace GoPass.Infrastructure.UnitOfWork;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _dbContext;
-
     public IReventaRepository ReventaRepository { get; }
-
     public IEntradaRepository EntradaRepository { get; }
-
     public IHistorialCompraVentaRepository HistorialCompraVentaRepository { get; }
-
     public IUsuarioRepository UsuarioRepository { get; }
 
     public UnitOfWork(ApplicationDbContext dbContext,

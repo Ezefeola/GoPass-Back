@@ -6,7 +6,7 @@ namespace GoPass.Application.Utilities.Mappers;
 
 public static class EntradaMappers
 {
-    public static Entrada FromEntradaRequestToModel(this EntradaRequestDto entradaRequestDto)
+    public static Entrada MapToModel(this EntradaRequestDto entradaRequestDto)
     {
         return new Entrada
         {
@@ -16,7 +16,7 @@ public static class EntradaMappers
         };
     }
 
-    public static PublishEntradaRequestDto FromModelToPublishEntradaRequest(this Entrada entrada)
+    public static PublishEntradaRequestDto MapToRequestDto(this Entrada entrada)
     {
         return new PublishEntradaRequestDto
         {
@@ -30,7 +30,7 @@ public static class EntradaMappers
         };
     }
 
-    public static Entrada FromPublishEntradaRequestToModel(this PublishEntradaRequestDto publishEntradaRequestDto)
+    public static Entrada MapToModel(this PublishEntradaRequestDto publishEntradaRequestDto)
     {
         return new Entrada
         {
@@ -44,7 +44,7 @@ public static class EntradaMappers
         };
     }
 
-    public static Entrada FromEntradaRequestToModel(this PublishEntradaRequestDto publishEntradaRequestDto, Entrada verifiedTicket, int userId)
+    public static Entrada MapToModel(this PublishEntradaRequestDto publishEntradaRequestDto, Entrada verifiedTicket, int userId)
     {
         return new Entrada
         {
@@ -59,7 +59,7 @@ public static class EntradaMappers
         };
     }
 
-    public static Reventa FromBuyEntradaRequestToModel(this BuyEntradaRequestDto buyEntradaRequestDto)
+    public static Reventa MapToModel(this BuyEntradaRequestDto buyEntradaRequestDto)
     {
         return new Reventa
         {
@@ -67,7 +67,7 @@ public static class EntradaMappers
         };
     }
 
-    public static EntradaResponseDto FromPublishEntradaRequestToResponseDto(this Entrada entrada)
+    public static EntradaResponseDto MapToResponseDto(this Entrada entrada)
     {
         return new EntradaResponseDto
         {

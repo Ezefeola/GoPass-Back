@@ -10,7 +10,7 @@ public class EntradaService : GenericService<Entrada>, IEntradaService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public EntradaService(IUnitOfWork unitOfWork) : base(unitOfWork.EntradaRepository)
+    public EntradaService(IUnitOfWork unitOfWork) : base(unitOfWork.EntradaRepository, unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }
@@ -18,8 +18,8 @@ public class EntradaService : GenericService<Entrada>, IEntradaService
     public async Task<Entrada> PublishTicket(PublishEntradaRequestDto publishEntradaRequestDto, int userId, CancellationToken cancellationToken)
     {
 
-        Entrada entradaExistingFaker = publishEntradaRequestDto.FromPublishEntradaRequestToModel();
-        Entrada entradaToCreate = publishEntradaRequestDto.FromEntradaRequestToModel(entradaExistingFaker, userId);
+        Entrada entradaExistingFaker = publishEntradaRequestDto.MapToModel();
+        Entrada entradaToCreate = publishEntradaRequestDto.MapToModel(entradaExistingFaker, userId);
 
         await _unitOfWork.EntradaRepository.Create(entradaToCreate);
 

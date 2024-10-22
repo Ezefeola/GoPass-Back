@@ -1,4 +1,5 @@
-﻿using GoPass.Infrastructure.Repositories.Interfaces;
+﻿using GoPass.Domain.Models;
+using GoPass.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GoPass.Infrastructure.UnitOfWork;

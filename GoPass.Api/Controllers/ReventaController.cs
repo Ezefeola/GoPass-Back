@@ -37,7 +37,7 @@ public class ReventaController : ControllerBase
     {
         Usuario sellerInformation = await _serviceFacade.usuarioService.GetByIdAsync(vendedorId);
 
-        SellerInformationResponseDto sellerInformationResponseDto = sellerInformation.FromModelToSellerInformationResponseDto();
+        SellerInformationResponseDto sellerInformationResponseDto = sellerInformation.MapToSellerInfoResponseDto();
 
         return Ok(sellerInformationResponseDto);
     }
@@ -75,16 +75,16 @@ public class ReventaController : ControllerBase
             if (validUserCredentials == false) return BadRequest("Debe tener todas sus credenciales en regla para poder publicar una entrada");
 
             Entrada verifiedTicket = await _serviceFacade.gopassHttpClientService.GetTicketByQrAsync(publishReventaRequestDto.CodigoQR);
-            PublishEntradaRequestDto existingTicketInFaker = verifiedTicket.FromModelToPublishEntradaRequest();
+            PublishEntradaRequestDto existingTicketInFaker = verifiedTicket.MapToRequestDto();
 
             Entrada createdTicket = await _serviceFacade.entradaService.PublishTicket(existingTicketInFaker, userId, cancellationToken);
 
-            Reventa reventaToPublish = publishReventaRequestDto.FromPublishReventaRequestToModel();
+            Reventa reventaToPublish = publishReventaRequestDto.MapToModel();
             reventaToPublish.EntradaId = createdTicket.Id;
 
             Reventa publishedReventa = await _serviceFacade.reventaService.PublishTicketAsync(reventaToPublish, userId, cancellationToken);
 
-            return Ok(publishedReventa.FromModelToPublishReventaResponseDto());
+            return Ok(publishedReventa.MapToResponseDto());
         }
         catch (Exception ex)
         {

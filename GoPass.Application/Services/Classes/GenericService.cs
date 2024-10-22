@@ -3,16 +3,19 @@ using GoPass.Application.Services.Interfaces;
 using GoPass.Domain.DTOs.Request.PaginationDTOs;
 using GoPass.Domain.Models;
 using GoPass.Infrastructure.Repositories.Interfaces;
+using GoPass.Infrastructure.UnitOfWork;
 
 namespace GoPass.Application.Services.Classes;
 
 public class GenericService<T> : IGenericService<T> where T : BaseModel
 {
     protected readonly IGenericRepository<T> _genericRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GenericService(IGenericRepository<T> genericRepository)
+    public GenericService(IGenericRepository<T> genericRepository, IUnitOfWork unitOfWork)
     {
         _genericRepository = genericRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<T>> GetAllAsync()
@@ -31,18 +34,28 @@ public class GenericService<T> : IGenericService<T> where T : BaseModel
         return await _genericRepository.GetById(id);
     }
 
-    public async Task<T> Create(T model)
+    public async Task<T> CreateAsync(T model, CancellationToken cancellationToken)
     {
-        return await _genericRepository.Create(model);
+        var createdRecord = await _genericRepository.Create(model);
+
+        await _unitOfWork.Complete(cancellationToken);
+
+        return createdRecord;
     }
-    public async Task<T> Update(int id, T model)
+    public async Task<T> UpdateAsync(int id, T model, CancellationToken cancellationToken)
     {
-        return await _genericRepository.Update(id, model);
+        var recordUpdated = await _genericRepository.Update(id, model);
+
+        await _unitOfWork.Complete(cancellationToken);
+
+        return recordUpdated;
     }
 
-    public async Task<T> Delete(int id)
+    public async Task<T> DeleteAsync(int id)
     {
-        return await _genericRepository.Delete(id);
+        var deletedRecord = await _genericRepository.Delete(id);
+
+        return deletedRecord;
     }
 
     public async Task<T> FindAsync(Expression<Func<T, bool>> predicate) => await _genericRepository.FindAsync(predicate);

@@ -18,9 +18,10 @@ public class TicketController : ControllerBase
     private readonly IServiceFacade _serviceFacade;
     private readonly ILogger<TicketController>? _logger;
 
-    public TicketController(IServiceFacade serviceFacade)
+    public TicketController(IServiceFacade serviceFacade, ILogger<TicketController>? logger)
     {
         _serviceFacade = serviceFacade;
+        _logger = logger;
     }
 
     [Authorize]
@@ -42,18 +43,18 @@ public class TicketController : ControllerBase
 
             Entrada ticket = await _serviceFacade.ticketMasterService.VerificarEntrada(verifyEntradaRequestDto.CodigoQR);
 
-            EntradaResponseDto entradaResponse = ticket.FromPublishEntradaRequestToResponseDto();
+            EntradaResponseDto entradaResponse = ticket.MapToResponseDto();
 
             return Ok(entradaResponse);
         }
         catch (TicketVerificationException ex)
         {
-            _logger.LogError(ex.Message);
+            _logger!.LogError(ex.Message);
             return Forbid(ex.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, Messages.ERR_TICKET_VERIFY);
+            _logger!.LogError(ex, Messages.ERR_TICKET_VERIFY);
             return StatusCode(StatusCodes.Status500InternalServerError, $"{Messages.ERR_TICKET_VERIFY} - {ex.Message}");
         }
     }

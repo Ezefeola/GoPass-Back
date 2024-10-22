@@ -12,6 +12,8 @@ public interface IGenericRepository<T> where T : BaseModel
     Task<T> Create(T model);
     Task<T> Update(int id, T model);
     Task<T> Delete(int id);
-    Task<T> FindAsync(Expression<Func<T, bool>> predicate);
+    Task<T?> FindAsync(Expression<Func<T, bool>> predicate);
+
+    Task CompleteFromGenericRepo();
 
 }

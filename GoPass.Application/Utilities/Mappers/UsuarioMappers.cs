@@ -1,39 +1,13 @@
 ﻿using GoPass.Domain.DTOs.Request.AuthRequestDTOs;
 using GoPass.Domain.DTOs.Response.AuthResponseDTOs;
+using GoPass.Domain.DTOs.Response.UsuarioResponseDTOs;
 using GoPass.Domain.Models;
 
 namespace GoPass.Application.Utilities.Mappers;
 
 public static class UsuarioMappers
 {
-    public static Usuario FromRegisterToModel(this RegisterRequestDto registerRequestDto)
-    {
-        return new Usuario
-        {
-            Email = registerRequestDto.Email,
-            Password = registerRequestDto.Password
-        };
-    }
-
-    public static Usuario FromLoginToModel(this LoginRequestDto loginRequestDto)
-    {
-        return new Usuario
-        {
-            Email = loginRequestDto.Email,
-            Password = loginRequestDto.Password
-        };
-    }
-
-    public static LoginResponseDto FromModelToLoginResponse(this Usuario usuario)
-    {
-        return new LoginResponseDto
-        {
-            Email = usuario.Email,
-            Token = usuario.Token!
-        };
-    }
-
-    public static Usuario FromModifyUsuarioRequestToModel(this ModifyUsuarioRequestDto modifyUsuarioRequestDto, Usuario existingData)
+    public static Usuario MapToModel(this ModifyUsuarioRequestDto modifyUsuarioRequestDto, Usuario existingData)
     {
         existingData.Nombre = modifyUsuarioRequestDto.Nombre;
         existingData.DNI = modifyUsuarioRequestDto.DNI;
@@ -44,13 +18,28 @@ public static class UsuarioMappers
         return existingData;
     }
 
-    public static SellerInformationResponseDto FromModelToSellerInformationResponseDto(this Usuario existingData)
+    public static SellerInformationResponseDto MapToSellerInfoResponseDto(this Usuario usuario)
     {
         return new SellerInformationResponseDto
         {
-            Id = existingData.Id,
-            Nombre = existingData.Nombre!,
-            Image = existingData.Image!,
+            Id = usuario.Id,
+            Nombre = usuario.Nombre!,
+            Image = usuario.Image!,
         };
     }
+
+    public static ModifyUserDataResponseDto MapToModifyUserDataResponseDto(this Usuario usuario)
+    {
+        return new ModifyUserDataResponseDto
+        {
+            City = usuario.City,
+            Country = usuario.Country,
+            DNI = usuario.DNI,
+            Email = usuario.Email,
+            Image = usuario.Image,
+            Nombre = usuario.Nombre,
+            NumeroTelefono = usuario.NumeroTelefono
+        };
+    }
+
 }

@@ -6,7 +6,7 @@ namespace GoPass.Application.Utilities.Mappers;
 
 public static class ReventaMappers
 {
-    public static Reventa FromReventaRequestToModel(this ReventaRequestDto reventaRequestDto)
+    public static Reventa MapToModel(this ReventaRequestDto reventaRequestDto)
     {
         return new Reventa
         {
@@ -18,7 +18,7 @@ public static class ReventaMappers
         };
     }
 
-    public static Reventa FromPublishReventaRequestToModel(this PublishReventaRequestDto publishReventaRequestDto)
+    public static Reventa MapToModel(this PublishReventaRequestDto publishReventaRequestDto)
     {
         return new Reventa
         {
@@ -27,7 +27,7 @@ public static class ReventaMappers
         };
     }
 
-    public static PublishReventaRequestDto FromModelToPublishReventaResponseDto(this Reventa reventa)
+    public static PublishReventaRequestDto MapToRequestDto(this Reventa reventa)
     {
         return new PublishReventaRequestDto
         {
@@ -37,7 +37,7 @@ public static class ReventaMappers
         };
     }
 
-    public static ReventaResponseDto FromModelToReventaResponseDto(this Reventa reventa)
+    public static ReventaResponseDto MapToResponseDto(this Reventa reventa)
     {
         return new ReventaResponseDto
         {

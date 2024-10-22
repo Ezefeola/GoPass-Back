@@ -10,7 +10,7 @@ public class ReventaService : GenericService<Reventa>, IReventaService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public ReventaService(IUnitOfWork unitOfWork) : base(unitOfWork.ReventaRepository)
+    public ReventaService(IUnitOfWork unitOfWork) : base(unitOfWork.ReventaRepository, unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

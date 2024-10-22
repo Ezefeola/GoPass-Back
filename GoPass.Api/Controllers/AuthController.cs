@@ -1,9 +1,13 @@
 ﻿using GoPass.Application.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
+using GoPass.Application.Validators.Users;
 using GoPass.Domain.DTOs.Request.AuthRequestDTOs;
+using GoPass.Domain.DTOs.Response.AuthResponseDTOs;
 using GoPass.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Threading;
 
 namespace GoPass.API.Controllers;
 
@@ -12,10 +16,12 @@ namespace GoPass.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IServiceFacade _serviceFacade;
+    private readonly ICustomAutoMapper customAutoMapper;
 
-    public AuthController(IServiceFacade serviceFacade)
+    public AuthController(IServiceFacade serviceFacade, ICustomAutoMapper customAutoMapper)
     {
         _serviceFacade = serviceFacade;
+        this.customAutoMapper = customAutoMapper;
     }
 
     [HttpPost("register")]
@@ -25,13 +31,13 @@ public class AuthController : ControllerBase
 
         try
         {
-            Usuario userToRegister = registerRequestDto.FromRegisterToModel();
+            Usuario userToRegister = registerRequestDto.MapToModel();
 
             Usuario registeredUser = await _serviceFacade.usuarioService.RegisterUserAsync(userToRegister);
 
             if (registeredUser is null) BadRequest("El usuario es nulo " + registeredUser);
 
-            string confirmationUrl = $"{Request.Scheme}://{Request.Host}/api/Auth/confirmar-cuenta?token={registeredUser.Token}";
+            string confirmationUrl = $"{Request.Scheme}://{Request.Host}/api/Auth/confirmar-cuenta?token={registeredUser!.Token}";
 
             var valoresReemplazo = new Dictionary<string, string>
              {
@@ -48,7 +54,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest();
+            return BadRequest(ex);
         }
     }
 
@@ -60,22 +66,25 @@ public class AuthController : ControllerBase
 
         try
         {
-            Usuario userToLogin = loginRequestDto.FromLoginToModel();
+            Usuario userToLogin = loginRequestDto.MapToModel();
 
             Usuario logUser = await _serviceFacade.usuarioService.AuthenticateAsync(userToLogin.Email, userToLogin.Password);
 
             if (!logUser.VerificadoEmail) return BadRequest("Falta confirmar la cuenta verifiquela en su correo electronico");
-
-            return Ok(logUser.FromModelToLoginResponse());
+            var stopwatch = Stopwatch.StartNew();
+            LoginResponseDto loginResponseDto = customAutoMapper.Map<Usuario, LoginResponseDto>(logUser);
+            stopwatch.Stop();
+            Console.WriteLine($"MapNewObject took: {stopwatch.ElapsedMilliseconds} ms");
+            return Ok(loginResponseDto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return Unauthorized("Las credenciales no son válidas.");
         }
     }
 
     [HttpGet("confirmar-cuenta")]
-    public async Task<IActionResult> ConfirmarCuenta([FromQuery] string token)
+    public async Task<IActionResult> ConfirmarCuenta([FromQuery] string token, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -99,18 +108,18 @@ public class AuthController : ControllerBase
             }
 
             user.VerificadoEmail = true;
-            await _serviceFacade.usuarioService.Update(user.Id, user);
+            await _serviceFacade.usuarioService.UpdateAsync(user.Id, user, cancellationToken);
 
             return Ok("Cuenta confirmada exitosamente.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return StatusCode(500, "Error interno del servidor.");
         }
     }
 
     [HttpPost("solicitar-restablecimiento")]
-    public async Task<IActionResult> SolicitarRestablecimiento([FromBody] PasswordResetRequestDto passwordResetRequestDto)
+    public async Task<IActionResult> SolicitarRestablecimiento([FromBody] PasswordResetRequestDto passwordResetRequestDto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         try
@@ -124,7 +133,7 @@ public class AuthController : ControllerBase
                 return BadRequest("No se pudo solicitar el restablecimiento de contraseña sin haber realizado antes la validacion en el correo electronico.");
 
             usuario.Restablecer = true;
-            await _serviceFacade.usuarioService.Update(usuario.Id, usuario);
+            await _serviceFacade.usuarioService.UpdateAsync(usuario.Id, usuario, cancellationToken);
 
             string resetUrl = $"{Request.Scheme}://{Request.Host}/api/Usuario/restablecer-actualizar?email={usuario.Email}";
 
@@ -179,7 +188,7 @@ public class AuthController : ControllerBase
                 return BadRequest(new { mensaje = "No se pudo actualizar la contraseña. Verifica el token o el estado de la solicitud." });
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = "Error interno del servidor." });
         }

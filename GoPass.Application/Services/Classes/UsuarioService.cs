@@ -16,7 +16,7 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
     public UsuarioService(IUnitOfWork unitOfWork, 
         ITokenService tokenService, 
         IAesGcmCryptoService aesGcmCryptoService, 
-        IHttpContextAccessor httpContextAccessor) : base(unitOfWork.UsuarioRepository)
+        IHttpContextAccessor httpContextAccessor) : base(unitOfWork.UsuarioRepository, unitOfWork)
     {
         _unitOfWork = unitOfWork;
         _tokenService = tokenService;
@@ -139,7 +139,7 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
             await _unitOfWork.Complete(cancellationToken);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }

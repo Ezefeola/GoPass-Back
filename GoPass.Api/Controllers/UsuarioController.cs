@@ -4,6 +4,7 @@ using GoPass.Domain.DTOs.Request.AuthRequestDTOs;
 using GoPass.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace GoPass.API.Controllers;
 
@@ -12,13 +13,15 @@ namespace GoPass.API.Controllers;
 public class UsuarioController : ControllerBase
 {
     private readonly ILogger<UsuarioController> _logger;
+    private readonly ICustomAutoMapper customAutoMapper;
     private readonly IServiceFacade _serviceFacade;
 
-    public UsuarioController(ILogger<UsuarioController> logger, 
+    public UsuarioController(ILogger<UsuarioController> logger, ICustomAutoMapper customAutoMapper,
             IServiceFacade serviceFacade
         )
     {
         _logger = logger;
+        this.customAutoMapper = customAutoMapper;
         _serviceFacade = serviceFacade;
     }
 
@@ -37,7 +40,7 @@ public class UsuarioController : ControllerBase
 
     [Authorize]
     [HttpPut("modify-user-credentials")]
-    public async Task<IActionResult> ModifyUserCredentials(ModifyUsuarioRequestDto modifyUsuarioRequestDto)
+    public async Task<IActionResult> ModifyUserCredentials(ModifyUsuarioRequestDto modifyUsuarioRequestDto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -56,7 +59,13 @@ public class UsuarioController : ControllerBase
                 return BadRequest("El número de teléfono ya se encuentra registrado por otro usuario.");
             }
 
-            Usuario credentialsToModify = modifyUsuarioRequestDto.FromModifyUsuarioRequestToModel(dbExistingUserCredentials);
+            //Usuario credentialsToModify = modifyUsuarioRequestDto.MapToModel(dbExistingUserCredentials);
+            Usuario credentialsToModify = dbExistingUserCredentials;
+            var stopwatch = Stopwatch.StartNew();
+            credentialsToModify = customAutoMapper.Map(modifyUsuarioRequestDto, credentialsToModify);
+
+            stopwatch.Stop();
+            Console.WriteLine($"MapNewObject took: {stopwatch.ElapsedMilliseconds} ms");
 
             credentialsToModify.DNI = _serviceFacade.aesGcmCryptoService.Encrypt(credentialsToModify.DNI!);
             credentialsToModify.NumeroTelefono = _serviceFacade.aesGcmCryptoService.Encrypt(credentialsToModify.NumeroTelefono!);
@@ -66,11 +75,11 @@ public class UsuarioController : ControllerBase
                 credentialsToModify.Verificado = true;
             }
 
-            Usuario modifiedCredentials = await _serviceFacade.usuarioService.Update(userId, credentialsToModify);
+            Usuario modifiedCredentials = await _serviceFacade.usuarioService.UpdateAsync(userId, credentialsToModify, cancellationToken);
 
             modifiedCredentials.DNI = _serviceFacade.aesGcmCryptoService.Decrypt(credentialsToModify.DNI!);
             modifiedCredentials.NumeroTelefono = _serviceFacade.aesGcmCryptoService.Decrypt(credentialsToModify.NumeroTelefono!);
-            return Ok(modifiedCredentials);
+            return Ok(modifiedCredentials.MapToModifyUserDataResponseDto());
 
         }
         catch (Exception ex)
@@ -93,7 +102,7 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpPost("verify-provided-code")]
-    public async Task<IActionResult> VerifyVonageCodeProvided(int vonageCode)
+    public async Task<IActionResult> VerifyVonageCodeProvided(int vonageCode, CancellationToken cancellationToken)
     {
         int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
         Usuario dbExistingUserCredentials = await _serviceFacade.usuarioService.GetByIdAsync(userId);
@@ -104,7 +113,7 @@ public class UsuarioController : ControllerBase
 
         dbExistingUserCredentials.VerificadoSms = true;
 
-        Usuario modifiedCredentials = await _serviceFacade.usuarioService.Update(userId, dbExistingUserCredentials);
+        Usuario modifiedCredentials = await _serviceFacade.usuarioService.UpdateAsync(userId, dbExistingUserCredentials, cancellationToken);
 
         return Ok("Se verifico su numero de telefono correctamente" + code);
     }

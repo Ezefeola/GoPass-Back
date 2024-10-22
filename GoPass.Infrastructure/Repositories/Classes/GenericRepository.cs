@@ -42,11 +42,13 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseModel
     }
     public virtual async Task<T> Update(int id, T model)
     {
-        model.Id = id;
+        var existingData = await _dbSet.FindAsync(id);
 
-        _dbSet.Update(model);
+        if (existingData is null) throw new KeyNotFoundException("No se encontro el modelo");
 
-        return model;
+        _dbContext.Entry(existingData).CurrentValues.SetValues(model);
+
+        return existingData;
     }
 
     public async Task<T> Delete(int id)
@@ -60,5 +62,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseModel
         return recordToDelete;
     }
 
-    public async Task<T> FindAsync(Expression<Func<T, bool>> predicate) => await _dbSet.Where(predicate).FirstOrDefaultAsync();
+    public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate) => await _dbSet.Where(predicate).FirstOrDefaultAsync();
+
+
+    public async Task CompleteFromGenericRepo()
+    {
+        await _dbContext.SaveChangesAsync();
+    }
 }

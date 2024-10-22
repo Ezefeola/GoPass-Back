@@ -16,6 +16,7 @@ using GoPass.Domain.DTOs.Request.NotificationDTOs;
 using GoPass.API.Middlewares;
 using GoPass.Infrastructure.UnitOfWork;
 using GoPass.Application.ServiceFacade;
+using GoPass.Application.Utilities.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -117,6 +118,8 @@ builder.Services.AddScoped<IAesGcmCryptoService, AesGcmCryptoService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IServiceFacade, ServiceFacade>();
+
+builder.Services.AddScoped<ICustomAutoMapper, CustomAutoMapper>();
 
 builder.Services.AddSingleton<GoPass.Application.Notifications.Interfaces.ISubject<string>, Subject<string>>();
 builder.Services.AddSingleton<IVonageSmsService, VonageSmsService>();
