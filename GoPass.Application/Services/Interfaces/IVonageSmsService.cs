@@ -3,5 +3,5 @@
 public interface IVonageSmsService
 {
     Task<bool> SendVonageVerificationCode(string phoneNumber);
-    bool VerifyCode(int userInputCode);
+    Task<bool> VerifyCode(int userInputCode);
 }

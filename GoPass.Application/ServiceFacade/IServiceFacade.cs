@@ -4,14 +4,15 @@ namespace GoPass.Application.ServiceFacade;
 
 public interface IServiceFacade
 {
-    public IVonageSmsService vonageSmsService { get; }
-    public IUsuarioService usuarioService { get; }
-    public ITicketMasterService ticketMasterService { get; }
-    public IEmailService emailService { get; }
-    public IAesGcmCryptoService aesGcmCryptoService { get; }
-    public IEntradaService entradaService { get; }
-    public IGopassHttpClientService gopassHttpClientService { get; }
-    public ITemplateService templateService { get; }
-    public IReventaService reventaService { get; }
-    public ITokenService tokenService { get; }
+    public IVonageSmsService VonageSmsService { get; }
+    public IUsuarioService UsuarioService { get; }
+    public ITicketMasterService TicketMasterService { get; }
+    public IEmailService EmailService { get; }
+    public IAesGcmCryptoService AesGcmCryptoService { get; }
+    public IEntradaService EntradaService { get; }
+    public IGopassHttpClientService GopassHttpClientService { get; }
+    public ITemplateService TemplateService { get; }
+    public IReventaService ReventaService { get; }
+    public ITokenService TokenService { get; }
+    //public IAuthService AuthService { get; }
 }

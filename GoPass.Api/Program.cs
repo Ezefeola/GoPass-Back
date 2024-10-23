@@ -17,6 +17,8 @@ using GoPass.API.Middlewares;
 using GoPass.Infrastructure.UnitOfWork;
 using GoPass.Application.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
+using GoPass.Application.Services.Validations.Interfaces;
+using GoPass.Application.Services.Validations.Classes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,6 +111,9 @@ builder.Services.AddHttpClient<IGopassHttpClientService, GopassHttpClientService
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<IUserValidationService, UserValidationService>();
+
+// Services
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IReventaService, ReventaService>();
@@ -119,20 +124,23 @@ builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IServiceFacade, ServiceFacade>();
 
+builder.Services.AddSingleton<IVonageSmsService, VonageSmsService>();
+// Services
+
 builder.Services.AddScoped<ICustomAutoMapper, CustomAutoMapper>();
 
 builder.Services.AddSingleton<GoPass.Application.Notifications.Interfaces.ISubject<string>, Subject<string>>();
-builder.Services.AddSingleton<IVonageSmsService, VonageSmsService>();
 
 builder.Services.AddTransient<GoPass.Application.Notifications.Interfaces.IObserver<NotificationEmailRequestDto>, BuyerEmailNotificationObserver>();
 builder.Services.AddTransient<GoPass.Application.Notifications.Interfaces.IObserver<NotificationEmailRequestDto>, SellerEmailNotificationObserver>();
 
+// Repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IReventaRepository, ReventaRepository>();
 builder.Services.AddScoped<IEntradaRepository, EntradaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IHistorialCompraVentaRepository, HistorialCompraVentaRepository>();
-
+// Repositories
 #endregion Services Area
 
 var app = builder.Build();

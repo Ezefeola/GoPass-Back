@@ -58,7 +58,7 @@ public class VonageSmsService : IVonageSmsService
         }
     }
 
-    public bool VerifyCode(int userInputCode)
+    public async Task<bool> VerifyCode(int userInputCode)
     {
         if (userInputCode == _verificationCode)
         {

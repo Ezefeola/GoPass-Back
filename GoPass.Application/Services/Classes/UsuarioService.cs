@@ -1,4 +1,5 @@
-﻿using GoPass.Application.Services.Interfaces;
+﻿using GoPass.Application.ServiceFacade;
+using GoPass.Application.Services.Interfaces;
 using GoPass.Domain.Models;
 using GoPass.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Http;
@@ -9,19 +10,20 @@ namespace GoPass.Application.Services.Classes;
 public class UsuarioService : GenericService<Usuario>, IUsuarioService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ITokenService _tokenService;
-    private readonly IAesGcmCryptoService _aesGcmCryptoService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IAesGcmCryptoService _aesGcmCryptoService;
+    private readonly ITokenService _tokenService;
     private readonly IPasswordHasher<Usuario> _passwordHasher;
     public UsuarioService(IUnitOfWork unitOfWork, 
-        ITokenService tokenService, 
-        IAesGcmCryptoService aesGcmCryptoService, 
-        IHttpContextAccessor httpContextAccessor) : base(unitOfWork.UsuarioRepository, unitOfWork)
+            IHttpContextAccessor httpContextAccessor, 
+            IAesGcmCryptoService aesGcmCryptoService, 
+            ITokenService tokenService 
+        ) : base(unitOfWork.UsuarioRepository, unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        _tokenService = tokenService;
-        _aesGcmCryptoService = aesGcmCryptoService;
         _httpContextAccessor = httpContextAccessor;
+        _aesGcmCryptoService = aesGcmCryptoService;
+        _tokenService = tokenService;
         _passwordHasher = new PasswordHasher<Usuario>();    
     }
     public async Task<List<Usuario>> GetAllUsersWithRelationsAsync()
@@ -36,67 +38,26 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
         return await _unitOfWork.UsuarioRepository.GetUserByEmail(email);
     }
 
+    public async Task<Usuario> ModifyUserCredentialsAsync(int id, Usuario usuario, CancellationToken cancellationToken)
+    {
+        usuario.DNI = _aesGcmCryptoService.Encrypt(usuario.DNI!);
+        usuario.NumeroTelefono = _aesGcmCryptoService.Encrypt(usuario.NumeroTelefono!);
+
+        Usuario userUpdated = await _genericRepository.Update(id, usuario);
+
+        await _unitOfWork.Complete(cancellationToken);
+
+
+        userUpdated.DNI = _aesGcmCryptoService.Decrypt(usuario.DNI!);
+        userUpdated.NumeroTelefono = _aesGcmCryptoService.Decrypt(usuario.NumeroTelefono!);
+        return userUpdated;
+    }
+
     public async Task<Usuario> DeleteUserWithRelationsAsync(int id)
     {
         var deletedUser = await _unitOfWork.UsuarioRepository.DeleteUserWithRelations(id);
 
         return deletedUser;
-    }
-
-    public async Task<Usuario> RegisterUserAsync(Usuario usuario)
-    {
-        usuario.Password = _passwordHasher.HashPassword(usuario, usuario.Password);
-
-        var nuevoUsuario = await _unitOfWork.UsuarioRepository.Create(usuario);
-
-        if (nuevoUsuario.Id <= 0)
-        {
-            throw new Exception("El ID del usuario no es válido después de la creación.");
-        }
-
-        var userToken = _tokenService.CreateToken(nuevoUsuario);
-        nuevoUsuario.Token = userToken;
-        await _unitOfWork.UsuarioRepository.StorageToken(usuario.Id, userToken);
-        return nuevoUsuario; 
-
-    }
-
-    public async Task<Usuario> AuthenticateAsync(string email, string password)
-    {
-        Usuario userInDb = await _unitOfWork.UsuarioRepository.GetUserByEmail(email);
-
-        PasswordVerificationResult passwordVerification = _passwordHasher.VerifyHashedPassword(userInDb, userInDb.Password, password);
-
-        if (passwordVerification == PasswordVerificationResult.Failed) throw new Exception("Las credenciales no son correctas");
-
-        Usuario user = await _unitOfWork.UsuarioRepository.AuthenticateUser(email, password);
-
-        string token = _tokenService.CreateToken(user);
-        user.Token = token;
-
-        return user;
-    }
-
-    public async Task<bool> VerifyEmailExistsAsync(string email)
-    {
-        bool userEmail = await _unitOfWork.UsuarioRepository.VerifyEmailExists(email);
-
-        return userEmail!;
-    }
-
-    public async Task<bool> VerifyDniExistsAsync(string dni, int userId)
-    {
-        string encriptedDni = _aesGcmCryptoService.Encrypt(dni);
-        bool userDni = await _unitOfWork.UsuarioRepository.VerifyDniExists(encriptedDni, userId);
-
-        return userDni;
-    }
-    public async Task<bool> VerifyPhoneNumberExistsAsync(string phoneNumber, int userId)
-    {
-        string encriptedPhoneNumber = _aesGcmCryptoService.Encrypt(phoneNumber);
-        bool userPhoneNumber = await _unitOfWork.UsuarioRepository.VerifyPhoneNumberExists(encriptedPhoneNumber, userId);
-
-        return userPhoneNumber;
     }
 
     public async Task<int> GetUserIdFromTokenAsync()
@@ -120,30 +81,7 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
         return decodedToken;
     }
 
-    public async Task<bool> ConfirmResetPasswordAsync(bool reset, string newPassword, string userEmail, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var usuario = await _unitOfWork.UsuarioRepository.GetUserByEmail(userEmail);
-            
-            if (usuario == null)
-            {
-                return false;
-            }
-
-            usuario.Restablecer = reset;
-            usuario.Password = _passwordHasher.HashPassword(usuario, newPassword);
-
-            await _unitOfWork.UsuarioRepository.Update(usuario.Id, usuario);
-
-            await _unitOfWork.Complete(cancellationToken);
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
+    
 
     public async Task<bool> ValidateUserCredentialsToPublishTicket(int userId)
     {
@@ -161,5 +99,64 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
         }
 
         return isvalid;
+    }
+
+    public async Task<Usuario> RegisterUserAsync(Usuario usuario)
+    {
+        usuario.Password = _passwordHasher.HashPassword(usuario, usuario.Password);
+
+        var nuevoUsuario = await _unitOfWork.UsuarioRepository.Create(usuario);
+
+        if (nuevoUsuario.Id <= 0)
+        {
+            throw new Exception("El ID del usuario no es válido después de la creación.");
+        }
+
+        var userToken = _tokenService.CreateToken(nuevoUsuario);
+        nuevoUsuario.Token = userToken;
+        await _unitOfWork.UsuarioRepository.StorageToken(usuario.Id, userToken);
+        return nuevoUsuario;
+
+    }
+
+    public async Task<Usuario> AuthenticateAsync(string email, string password)
+    {
+        Usuario userInDb = await _unitOfWork.UsuarioRepository.GetUserByEmail(email);
+
+        PasswordVerificationResult passwordVerification = _passwordHasher.VerifyHashedPassword(userInDb, userInDb.Password, password);
+
+        if (passwordVerification == PasswordVerificationResult.Failed) throw new Exception("Las credenciales no son correctas");
+
+        Usuario user = await _unitOfWork.UsuarioRepository.AuthenticateUser(email, password);
+
+        string token = _tokenService.CreateToken(user);
+        user.Token = token;
+
+        return user;
+    }
+
+    public async Task<bool> ConfirmResetPasswordAsync(bool reset, string newPassword, string userEmail, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var usuario = await _unitOfWork.UsuarioRepository.GetUserByEmail(userEmail);
+
+            if (usuario == null)
+            {
+                return false;
+            }
+
+            usuario.Restablecer = reset;
+            usuario.Password = _passwordHasher.HashPassword(usuario, newPassword);
+
+            await _unitOfWork.UsuarioRepository.Update(usuario.Id, usuario);
+
+            await _unitOfWork.Complete(cancellationToken);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

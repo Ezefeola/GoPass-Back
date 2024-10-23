@@ -1,6 +1,7 @@
 ﻿using GoPass.Application.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
 using GoPass.Domain.DTOs.Request.AuthRequestDTOs;
+using GoPass.Domain.DTOs.Request.UserRequestDTOs;
 using GoPass.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,8 @@ public class UsuarioController : ControllerBase
     private readonly ICustomAutoMapper customAutoMapper;
     private readonly IServiceFacade _serviceFacade;
 
-    public UsuarioController(ILogger<UsuarioController> logger, ICustomAutoMapper customAutoMapper,
+    public UsuarioController(ILogger<UsuarioController> logger, 
+            ICustomAutoMapper customAutoMapper,
             IServiceFacade serviceFacade
         )
     {
@@ -29,11 +31,11 @@ public class UsuarioController : ControllerBase
     [HttpGet("user-credentials")]
     public async Task<IActionResult> GetUserCredentials()
     {
-        int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
-        Usuario dbExistingUserCredentials = await _serviceFacade.usuarioService.GetByIdAsync(userId);
+        int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+        Usuario dbExistingUserCredentials = await _serviceFacade.UsuarioService.GetByIdAsync(userId);
 
-        dbExistingUserCredentials.DNI = _serviceFacade.aesGcmCryptoService.Decrypt(dbExistingUserCredentials.DNI!);
-        dbExistingUserCredentials.NumeroTelefono = _serviceFacade.aesGcmCryptoService.Decrypt(dbExistingUserCredentials.NumeroTelefono!);
+        dbExistingUserCredentials.DNI = _serviceFacade.AesGcmCryptoService.Decrypt(dbExistingUserCredentials.DNI!);
+        dbExistingUserCredentials.NumeroTelefono = _serviceFacade.AesGcmCryptoService.Decrypt(dbExistingUserCredentials.NumeroTelefono!);
 
         return Ok(dbExistingUserCredentials);
     }
@@ -46,39 +48,18 @@ public class UsuarioController : ControllerBase
 
         try
         {
-            int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
-            Usuario dbExistingUserCredentials = await _serviceFacade.usuarioService.GetByIdAsync(userId);
-
-            if (await _serviceFacade.usuarioService.VerifyDniExistsAsync(modifyUsuarioRequestDto.DNI, userId))
-            {
-                return BadRequest("El DNI ya se encuentra registrado por otro usuario.");
-            }
-
-            if (await _serviceFacade.usuarioService.VerifyPhoneNumberExistsAsync(modifyUsuarioRequestDto.NumeroTelefono, userId))
-            {
-                return BadRequest("El número de teléfono ya se encuentra registrado por otro usuario.");
-            }
+            int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+            Usuario dbExistingUserCredentials = await _serviceFacade.UsuarioService.GetByIdAsync(userId);
 
             //Usuario credentialsToModify = modifyUsuarioRequestDto.MapToModel(dbExistingUserCredentials);
-            Usuario credentialsToModify = dbExistingUserCredentials;
             var stopwatch = Stopwatch.StartNew();
-            credentialsToModify = customAutoMapper.Map(modifyUsuarioRequestDto, credentialsToModify);
-
+            Usuario credentialsToModify = customAutoMapper.Map(modifyUsuarioRequestDto, dbExistingUserCredentials);
             stopwatch.Stop();
-            Console.WriteLine($"MapNewObject took: {stopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"El mapeo tomo: {stopwatch.ElapsedMilliseconds} ms");
 
-            credentialsToModify.DNI = _serviceFacade.aesGcmCryptoService.Encrypt(credentialsToModify.DNI!);
-            credentialsToModify.NumeroTelefono = _serviceFacade.aesGcmCryptoService.Encrypt(credentialsToModify.NumeroTelefono!);
+            credentialsToModify.Verificado = true;
+            Usuario modifiedCredentials = await _serviceFacade.UsuarioService.ModifyUserCredentialsAsync(userId, credentialsToModify, cancellationToken);
 
-            if(credentialsToModify.DNI is not null && credentialsToModify.Nombre is not null && credentialsToModify.NumeroTelefono is not null)
-            {
-                credentialsToModify.Verificado = true;
-            }
-
-            Usuario modifiedCredentials = await _serviceFacade.usuarioService.UpdateAsync(userId, credentialsToModify, cancellationToken);
-
-            modifiedCredentials.DNI = _serviceFacade.aesGcmCryptoService.Decrypt(credentialsToModify.DNI!);
-            modifiedCredentials.NumeroTelefono = _serviceFacade.aesGcmCryptoService.Decrypt(credentialsToModify.NumeroTelefono!);
             return Ok(modifiedCredentials.MapToModifyUserDataResponseDto());
 
         }
@@ -91,7 +72,7 @@ public class UsuarioController : ControllerBase
     [HttpPost("verify-phone")]
     public async Task<IActionResult> VerifyPhoneNumber(string phoneNumber)
     {
-        var result = await _serviceFacade.vonageSmsService.SendVonageVerificationCode(phoneNumber);
+        var result = await _serviceFacade.VonageSmsService.SendVonageVerificationCode(phoneNumber);
 
         if (result)
         {
@@ -102,20 +83,19 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpPost("verify-provided-code")]
-    public async Task<IActionResult> VerifyVonageCodeProvided(int vonageCode, CancellationToken cancellationToken)
+    public async Task<IActionResult> VerifyVonageCodeProvided(VerifyVonageCodeRequestDto verifyVonageCodeRequestDto, CancellationToken cancellationToken)
     {
-        int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
-        Usuario dbExistingUserCredentials = await _serviceFacade.usuarioService.GetByIdAsync(userId);
+        int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+        Usuario dbExistingUserCredentials = await _serviceFacade.UsuarioService.GetByIdAsync(userId);
 
-        bool code = _serviceFacade.vonageSmsService.VerifyCode(vonageCode);
+        //bool code = _serviceFacade.VonageSmsService.VerifyCode(verifyVonageCodeRequestDto.VonageCode);
 
-        if (code == false) return BadRequest("El codigo ingresado no coincide con el que se le envio por sms.");
+        //if (code == false) return BadRequest("El codigo ingresado no coincide con el que se le envio por sms.");
 
         dbExistingUserCredentials.VerificadoSms = true;
+        Usuario modifiedCredentials = await _serviceFacade.UsuarioService.UpdateAsync(userId, dbExistingUserCredentials, cancellationToken);
 
-        Usuario modifiedCredentials = await _serviceFacade.usuarioService.UpdateAsync(userId, dbExistingUserCredentials, cancellationToken);
-
-        return Ok("Se verifico su numero de telefono correctamente" + code);
+        return Ok("Se verifico su numero de telefono correctamente");
     }
 
     [HttpGet("obtener-usuario-entradas-reventa")]
@@ -123,9 +103,9 @@ public class UsuarioController : ControllerBase
     {
         try
         {
-           int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
+           int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
 
-            List<Entrada> resales = await _serviceFacade.entradaService.GetTicketsInResaleByUserIdAsync(userId);
+            List<Entrada> resales = await _serviceFacade.EntradaService.GetTicketsInResaleByUserIdAsync(userId);
 
             return Ok(resales);
         }
@@ -136,14 +116,16 @@ public class UsuarioController : ControllerBase
         }
     }
 
+
+
     [HttpGet("obtener-usuario-entradas-compradas")]
     public async Task<IActionResult> GetUserTicketsBought()
     {
         try
         {
-            int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
+            int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
 
-            List < HistorialCompraVenta> resales = await _serviceFacade.reventaService.GetBoughtTicketsByCompradorIdAsync(userId);
+            List < HistorialCompraVenta> resales = await _serviceFacade.ReventaService.GetBoughtTicketsByCompradorIdAsync(userId);
 
             return Ok(resales);
         }

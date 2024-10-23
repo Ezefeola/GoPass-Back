@@ -28,7 +28,7 @@ public class TicketController : ControllerBase
     [HttpGet("get-tickets")]
     public async Task<IActionResult> GetTickets([FromQuery] PaginationDto paginationDto)
     {
-        List<Entrada> tickets = await _serviceFacade.entradaService.GetAllWithPaginationAsync(paginationDto);
+        List<Entrada> tickets = await _serviceFacade.EntradaService.GetAllWithPaginationAsync(paginationDto);
 
         return Ok(tickets);
     }
@@ -41,7 +41,7 @@ public class TicketController : ControllerBase
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            Entrada ticket = await _serviceFacade.ticketMasterService.VerificarEntrada(verifyEntradaRequestDto.CodigoQR);
+            Entrada ticket = await _serviceFacade.TicketMasterService.VerificarEntrada(verifyEntradaRequestDto.CodigoQR);
 
             EntradaResponseDto entradaResponse = ticket.MapToResponseDto();
 

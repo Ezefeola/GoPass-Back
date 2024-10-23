@@ -42,7 +42,7 @@ public class GenericService<T> : IGenericService<T> where T : BaseModel
 
         return createdRecord;
     }
-    public async Task<T> UpdateAsync(int id, T model, CancellationToken cancellationToken)
+    public virtual async Task<T> UpdateAsync(int id, T model, CancellationToken cancellationToken)
     {
         var recordUpdated = await _genericRepository.Update(id, model);
 

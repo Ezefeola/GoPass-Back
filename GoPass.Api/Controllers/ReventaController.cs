@@ -26,7 +26,7 @@ public class ReventaController : ControllerBase
     [HttpGet("get-resales")]
     public async Task<IActionResult> GetResales([FromQuery] PaginationDto paginationDto)
     {
-        List<Reventa> resales = await _serviceFacade.reventaService.GetAllWithPaginationAsync(paginationDto);
+        List<Reventa> resales = await _serviceFacade.ReventaService.GetAllWithPaginationAsync(paginationDto);
 
         return Ok(resales);
     }
@@ -35,7 +35,7 @@ public class ReventaController : ControllerBase
     [HttpGet("get-seller-information")]
     public async Task<IActionResult> GetTicketResaleSellerInformation(int vendedorId)
     {
-        Usuario sellerInformation = await _serviceFacade.usuarioService.GetByIdAsync(vendedorId);
+        Usuario sellerInformation = await _serviceFacade.UsuarioService.GetByIdAsync(vendedorId);
 
         SellerInformationResponseDto sellerInformationResponseDto = sellerInformation.MapToSellerInfoResponseDto();
 
@@ -45,7 +45,7 @@ public class ReventaController : ControllerBase
     [HttpGet("get-ticket-from-faker")]
     public async Task<IActionResult> GetTicketFromTicketFaker(string codigoQr)
     {
-        Entrada verifiedTicket = await _serviceFacade.gopassHttpClientService.GetTicketByQrAsync(codigoQr);
+        Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(codigoQr);
 
         return Ok(verifiedTicket);
     }
@@ -53,7 +53,7 @@ public class ReventaController : ControllerBase
     [HttpGet("validate-ticket-from-faker")]
     public async Task<IActionResult> ValidateTicketFromTicketFaker(string codigoQr)
     {
-        Entrada verifiedTicket = await _serviceFacade.gopassHttpClientService.GetTicketByQrAsync(codigoQr);
+        Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(codigoQr);
 
         if (verifiedTicket is null) return BadRequest("No se encontro la entrada a validar.");
 
@@ -68,21 +68,21 @@ public class ReventaController : ControllerBase
     {
         try
         {
-            int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
+            int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
 
-            bool validUserCredentials = await _serviceFacade.usuarioService.ValidateUserCredentialsToPublishTicket(userId);
+            bool validUserCredentials = await _serviceFacade.UsuarioService.ValidateUserCredentialsToPublishTicket(userId);
 
             if (validUserCredentials == false) return BadRequest("Debe tener todas sus credenciales en regla para poder publicar una entrada");
 
-            Entrada verifiedTicket = await _serviceFacade.gopassHttpClientService.GetTicketByQrAsync(publishReventaRequestDto.CodigoQR);
+            Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(publishReventaRequestDto.CodigoQR);
             PublishEntradaRequestDto existingTicketInFaker = verifiedTicket.MapToRequestDto();
 
-            Entrada createdTicket = await _serviceFacade.entradaService.PublishTicket(existingTicketInFaker, userId, cancellationToken);
+            Entrada createdTicket = await _serviceFacade.EntradaService.PublishTicket(existingTicketInFaker, userId, cancellationToken);
 
             Reventa reventaToPublish = publishReventaRequestDto.MapToModel();
             reventaToPublish.EntradaId = createdTicket.Id;
 
-            Reventa publishedReventa = await _serviceFacade.reventaService.PublishTicketAsync(reventaToPublish, userId, cancellationToken);
+            Reventa publishedReventa = await _serviceFacade.ReventaService.PublishTicketAsync(reventaToPublish, userId, cancellationToken);
 
             return Ok(publishedReventa.MapToResponseDto());
         }
@@ -96,24 +96,24 @@ public class ReventaController : ControllerBase
     [HttpPut("comprar-entrada")]
     public async Task<IActionResult> BuyTicket(BuyEntradaRequestDto buyEntradaRequestDto, CancellationToken cancellationToken)
     {
-        int userId = await _serviceFacade.usuarioService.GetUserIdFromTokenAsync();
+        int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
 
-        Reventa resaleDb = await _serviceFacade.reventaService.GetResaleByEntradaIdAsync(buyEntradaRequestDto.EntradaId);
+        Reventa resaleDb = await _serviceFacade.ReventaService.GetResaleByEntradaIdAsync(buyEntradaRequestDto.EntradaId);
 
         if(userId == resaleDb.VendedorId)
         {
             return BadRequest("Esta intentando comprar su propia entrada, lo cual no tiene sentido");
         }
 
-        Entrada ticketDb = await _serviceFacade.entradaService.GetByIdAsync(buyEntradaRequestDto.EntradaId);
-        HistorialCompraVenta publishReventaBuyer = await _serviceFacade.reventaService.BuyTicketAsync(resaleDb.Id, userId, cancellationToken);
+        Entrada ticketDb = await _serviceFacade.EntradaService.GetByIdAsync(buyEntradaRequestDto.EntradaId);
+        HistorialCompraVenta publishReventaBuyer = await _serviceFacade.ReventaService.BuyTicketAsync(resaleDb.Id, userId, cancellationToken);
 
-        Usuario buyerData = await _serviceFacade.usuarioService.GetByIdAsync(publishReventaBuyer.CompradorId);
-        Usuario sellerData = await _serviceFacade.usuarioService.GetByIdAsync(publishReventaBuyer.VendedorId);
+        Usuario buyerData = await _serviceFacade.UsuarioService.GetByIdAsync(publishReventaBuyer.CompradorId);
+        Usuario sellerData = await _serviceFacade.UsuarioService.GetByIdAsync(publishReventaBuyer.VendedorId);
        
 
         Subject<NotificationEmailRequestDto> purchaseNotifier = new();
-        BuyerEmailNotificationObserver compradorObserver = new BuyerEmailNotificationObserver(_serviceFacade.emailService);
+        BuyerEmailNotificationObserver compradorObserver = new BuyerEmailNotificationObserver(_serviceFacade.EmailService);
 
         purchaseNotifier.Attach(compradorObserver);
 
@@ -127,7 +127,7 @@ public class ReventaController : ControllerBase
         await purchaseNotifier.Notify(buyerNotificationEmailRequestDto); // Comprador
 
         Subject<NotificationEmailRequestDto> sellerNotifier = new();
-        SellerEmailNotificationObserver sellerObserver = new SellerEmailNotificationObserver(_serviceFacade.emailService);
+        SellerEmailNotificationObserver sellerObserver = new SellerEmailNotificationObserver(_serviceFacade.EmailService);
 
         sellerNotifier.Attach(sellerObserver);
 

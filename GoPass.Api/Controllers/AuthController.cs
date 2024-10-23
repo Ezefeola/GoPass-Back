@@ -1,13 +1,11 @@
 ﻿using GoPass.Application.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
-using GoPass.Application.Validators.Users;
 using GoPass.Domain.DTOs.Request.AuthRequestDTOs;
 using GoPass.Domain.DTOs.Response.AuthResponseDTOs;
 using GoPass.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using System.Threading;
 
 namespace GoPass.API.Controllers;
 
@@ -33,7 +31,7 @@ public class AuthController : ControllerBase
         {
             Usuario userToRegister = registerRequestDto.MapToModel();
 
-            Usuario registeredUser = await _serviceFacade.usuarioService.RegisterUserAsync(userToRegister);
+            Usuario registeredUser = await _serviceFacade.UsuarioService.RegisterUserAsync(userToRegister);
 
             if (registeredUser is null) BadRequest("El usuario es nulo " + registeredUser);
 
@@ -44,11 +42,11 @@ public class AuthController : ControllerBase
                  { "Nombre", registeredUser.Nombre! },
                  { "UrlConfirmacion", confirmationUrl }
              };
-            string contenidoPlantilla = await _serviceFacade.templateService.ObtenerContenidoTemplateAsync("VerifyEmail", valoresReemplazo);
+            string contenidoPlantilla = await _serviceFacade.TemplateService.ObtenerContenidoTemplateAsync("VerifyEmail", valoresReemplazo);
             string emailSubject = "Confirmacion de cuenta";
             EmailValidationRequestDto emailConfig = new();
             EmailValidationRequestDto emailToSend = emailConfig.AssignEmailValues(userToRegister.Email, emailSubject, contenidoPlantilla);
-            bool enviado = await _serviceFacade.emailService.SendVerificationEmailAsync(emailToSend);
+            bool enviado = await _serviceFacade.EmailService.SendVerificationEmailAsync(emailToSend);
 
             return Ok(registeredUser);
         }
@@ -68,13 +66,15 @@ public class AuthController : ControllerBase
         {
             Usuario userToLogin = loginRequestDto.MapToModel();
 
-            Usuario logUser = await _serviceFacade.usuarioService.AuthenticateAsync(userToLogin.Email, userToLogin.Password);
+            Usuario logUser = await _serviceFacade.UsuarioService.AuthenticateAsync(userToLogin.Email, userToLogin.Password);
 
             if (!logUser.VerificadoEmail) return BadRequest("Falta confirmar la cuenta verifiquela en su correo electronico");
+
             var stopwatch = Stopwatch.StartNew();
             LoginResponseDto loginResponseDto = customAutoMapper.Map<Usuario, LoginResponseDto>(logUser);
             stopwatch.Stop();
-            Console.WriteLine($"MapNewObject took: {stopwatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"El mapeo tomo: {stopwatch.ElapsedMilliseconds} ms");
+
             return Ok(loginResponseDto);
         }
         catch (Exception)
@@ -93,7 +93,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            string userIdObtainedString = await _serviceFacade.usuarioService.CleanTokenAsync(token);
+            string userIdObtainedString = await _serviceFacade.UsuarioService.CleanTokenAsync(token);
             int userIdParsed = int.Parse(userIdObtainedString);
 
             if (userIdParsed <= 0)
@@ -101,14 +101,14 @@ public class AuthController : ControllerBase
                 return BadRequest("ID de usuario no válido.");
             }
 
-            var user = await _serviceFacade.usuarioService.GetByIdAsync(userIdParsed);
+            var user = await _serviceFacade.UsuarioService.GetByIdAsync(userIdParsed);
             if (user is null)
             {
                 return NotFound("No se encontró el usuario.");
             }
 
             user.VerificadoEmail = true;
-            await _serviceFacade.usuarioService.UpdateAsync(user.Id, user, cancellationToken);
+            await _serviceFacade.UsuarioService.UpdateAsync(user.Id, user, cancellationToken);
 
             return Ok("Cuenta confirmada exitosamente.");
         }
@@ -124,7 +124,7 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         try
         {
-            var usuario = await _serviceFacade.usuarioService.GetUserByEmailAsync(passwordResetRequestDto.Email);
+            var usuario = await _serviceFacade.UsuarioService.GetUserByEmailAsync(passwordResetRequestDto.Email);
             if (usuario == null)
             {
                 return NotFound("No se encontró un usuario con ese correo.");
@@ -133,7 +133,7 @@ public class AuthController : ControllerBase
                 return BadRequest("No se pudo solicitar el restablecimiento de contraseña sin haber realizado antes la validacion en el correo electronico.");
 
             usuario.Restablecer = true;
-            await _serviceFacade.usuarioService.UpdateAsync(usuario.Id, usuario, cancellationToken);
+            await _serviceFacade.UsuarioService.UpdateAsync(usuario.Id, usuario, cancellationToken);
 
             string resetUrl = $"{Request.Scheme}://{Request.Host}/api/Usuario/restablecer-actualizar?email={usuario.Email}";
 
@@ -144,13 +144,13 @@ public class AuthController : ControllerBase
                 { "UrlRestablecimiento", resetUrl }
             };
 
-            string contenidoPlantilla = await _serviceFacade.templateService.ObtenerContenidoTemplateAsync("ResetPassword", valoresReemplazo);
+            string contenidoPlantilla = await _serviceFacade.TemplateService.ObtenerContenidoTemplateAsync("ResetPassword", valoresReemplazo);
             string emailSubject = "Restablecimiento de contraseña";
 
             EmailValidationRequestDto emailConfig = new();
             EmailValidationRequestDto emailToSend = emailConfig.AssignEmailValues(usuario.Email, emailSubject, contenidoPlantilla);
 
-            bool sent = await _serviceFacade.emailService.SendVerificationEmailAsync(emailToSend);
+            bool sent = await _serviceFacade.EmailService.SendVerificationEmailAsync(emailToSend);
 
             if (!sent)
             {
@@ -172,11 +172,11 @@ public class AuthController : ControllerBase
 
         try
         {
-            var usuario = await _serviceFacade.usuarioService.GetUserByEmailAsync(confirmPasswordResetRequestDto.Email);
+            var usuario = await _serviceFacade.UsuarioService.GetUserByEmailAsync(confirmPasswordResetRequestDto.Email);
             if (usuario.Restablecer is false)
                 return BadRequest("Usted no ha solicitado un restablecimiento de contraseña");
 
-            var actualizado = await _serviceFacade.usuarioService.ConfirmResetPasswordAsync(false, confirmPasswordResetRequestDto.Password,
+            var actualizado = await _serviceFacade.UsuarioService.ConfirmResetPasswordAsync(false, confirmPasswordResetRequestDto.Password,
                 confirmPasswordResetRequestDto.Email, cancellationToken);
 
             if (actualizado)
