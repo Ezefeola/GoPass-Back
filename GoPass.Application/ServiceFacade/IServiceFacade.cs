@@ -14,5 +14,5 @@ public interface IServiceFacade
     public ITemplateService TemplateService { get; }
     public IReventaService ReventaService { get; }
     public ITokenService TokenService { get; }
-    //public IAuthService AuthService { get; }
+    public IAuthService AuthService { get; }
 }

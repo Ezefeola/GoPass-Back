@@ -21,17 +21,16 @@ public class TokenService : ITokenService
     }
     public string CreateToken(Usuario usuario)
     {
-        // Verifica si el usuario tiene un ID válido
         if (usuario.Id <= 0)
         {
             throw new Exception("El ID del usuario no es válido.");
         }
 
         List<Claim> claims = new List<Claim>
-{
-    new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
-    new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),  // El ID del usuario se almacena aquí
-};
+        {
+            new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+            new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+        };
 
         SigningCredentials credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 
@@ -51,6 +50,19 @@ public class TokenService : ITokenService
         return tokenHandler.WriteToken(token);
     }
 
+    public async Task<string> CleanTokenAsync(string token)
+    {
+        string cleanToken = token.StartsWith("Bearer ") ? token.Substring("Bearer ".Length) : token;
+
+        if (string.IsNullOrWhiteSpace(cleanToken))
+        {
+            throw new Exception("Token nulo o vacío.");
+        }
+
+        string decodedToken = await DecodeToken(cleanToken!);
+
+        return decodedToken;
+    }
 
     public async Task<string> DecodeToken(string token)
     {
@@ -58,10 +70,8 @@ public class TokenService : ITokenService
 
         try
         {
-            // Verificamos si el token es legible
             JwtSecurityToken decodedToken = tokenHandler.ReadJwtToken(token);
 
-            // Buscamos el claim "sub" que contiene el ID de usuario
             var userIdClaim = decodedToken.Claims.FirstOrDefault(claim => claim.Type == "sub");
 
             if (userIdClaim == null)

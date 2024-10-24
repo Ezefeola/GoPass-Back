@@ -14,8 +14,7 @@ public class ServiceFacade : IServiceFacade
     public ITemplateService TemplateService { get; }
     public IReventaService ReventaService { get; }
     public ITokenService TokenService { get; }
-    //public IAuthService AuthService { get; }
-
+    public IAuthService AuthService { get; }
     public ServiceFacade(IVonageSmsService vonageSmsService,
         IUsuarioService usuarioService,
         ITicketMasterService ticketMasterService,
@@ -25,8 +24,8 @@ public class ServiceFacade : IServiceFacade
         IGopassHttpClientService gopassHttpClientService,
         ITemplateService templateService,
         IReventaService reventaService,
-        ITokenService tokenService
-        //IAuthService authService
+        ITokenService tokenService,
+        IAuthService authService
         )
     {
         VonageSmsService = vonageSmsService;
@@ -39,6 +38,6 @@ public class ServiceFacade : IServiceFacade
         TemplateService = templateService;
         ReventaService = reventaService;
         TokenService = tokenService;
-        //AuthService = authService;
+        AuthService = authService;
     }
 }

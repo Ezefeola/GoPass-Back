@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
         {
             Usuario userToRegister = registerRequestDto.MapToModel();
 
-            Usuario registeredUser = await _serviceFacade.UsuarioService.RegisterUserAsync(userToRegister);
+            Usuario registeredUser = await _serviceFacade.AuthService.RegisterUserAsync(userToRegister);
 
             if (registeredUser is null) BadRequest("El usuario es nulo " + registeredUser);
 
@@ -66,7 +66,7 @@ public class AuthController : ControllerBase
         {
             Usuario userToLogin = loginRequestDto.MapToModel();
 
-            Usuario logUser = await _serviceFacade.UsuarioService.AuthenticateAsync(userToLogin.Email, userToLogin.Password);
+            Usuario logUser = await _serviceFacade.AuthService.AuthenticateAsync(userToLogin.Email, userToLogin.Password);
 
             if (!logUser.VerificadoEmail) return BadRequest("Falta confirmar la cuenta verifiquela en su correo electronico");
 
@@ -93,7 +93,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            string userIdObtainedString = await _serviceFacade.UsuarioService.CleanTokenAsync(token);
+            string userIdObtainedString = await _serviceFacade.TokenService.CleanTokenAsync(token);
             int userIdParsed = int.Parse(userIdObtainedString);
 
             if (userIdParsed <= 0)
@@ -124,7 +124,7 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         try
         {
-            var usuario = await _serviceFacade.UsuarioService.GetUserByEmailAsync(passwordResetRequestDto.Email);
+            Usuario usuario = await _serviceFacade.UsuarioService.GetUserByEmailAsync(passwordResetRequestDto.Email);
             if (usuario == null)
             {
                 return NotFound("No se encontró un usuario con ese correo.");
@@ -176,7 +176,7 @@ public class AuthController : ControllerBase
             if (usuario.Restablecer is false)
                 return BadRequest("Usted no ha solicitado un restablecimiento de contraseña");
 
-            var actualizado = await _serviceFacade.UsuarioService.ConfirmResetPasswordAsync(false, confirmPasswordResetRequestDto.Password,
+            bool actualizado = await _serviceFacade.AuthService.ConfirmResetPasswordAsync(false, confirmPasswordResetRequestDto.Password,
                 confirmPasswordResetRequestDto.Email, cancellationToken);
 
             if (actualizado)

@@ -31,7 +31,7 @@ public class UsuarioController : ControllerBase
     [HttpGet("user-credentials")]
     public async Task<IActionResult> GetUserCredentials()
     {
-        int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+        int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
         Usuario dbExistingUserCredentials = await _serviceFacade.UsuarioService.GetByIdAsync(userId);
 
         dbExistingUserCredentials.DNI = _serviceFacade.AesGcmCryptoService.Decrypt(dbExistingUserCredentials.DNI!);
@@ -48,7 +48,7 @@ public class UsuarioController : ControllerBase
 
         try
         {
-            int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+            int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
             Usuario dbExistingUserCredentials = await _serviceFacade.UsuarioService.GetByIdAsync(userId);
 
             //Usuario credentialsToModify = modifyUsuarioRequestDto.MapToModel(dbExistingUserCredentials);
@@ -85,7 +85,7 @@ public class UsuarioController : ControllerBase
     [HttpPost("verify-provided-code")]
     public async Task<IActionResult> VerifyVonageCodeProvided(VerifyVonageCodeRequestDto verifyVonageCodeRequestDto, CancellationToken cancellationToken)
     {
-        int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+        int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
         Usuario dbExistingUserCredentials = await _serviceFacade.UsuarioService.GetByIdAsync(userId);
 
         //bool code = _serviceFacade.VonageSmsService.VerifyCode(verifyVonageCodeRequestDto.VonageCode);
@@ -103,7 +103,7 @@ public class UsuarioController : ControllerBase
     {
         try
         {
-           int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+           int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
 
             List<Entrada> resales = await _serviceFacade.EntradaService.GetTicketsInResaleByUserIdAsync(userId);
 
@@ -123,7 +123,7 @@ public class UsuarioController : ControllerBase
     {
         try
         {
-            int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+            int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
 
             List < HistorialCompraVenta> resales = await _serviceFacade.ReventaService.GetBoughtTicketsByCompradorIdAsync(userId);
 

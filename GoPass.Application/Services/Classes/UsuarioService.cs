@@ -1,5 +1,4 @@
-﻿using GoPass.Application.ServiceFacade;
-using GoPass.Application.Services.Interfaces;
+﻿using GoPass.Application.Services.Interfaces;
 using GoPass.Domain.Models;
 using GoPass.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Http;
@@ -47,7 +46,6 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
 
         await _unitOfWork.Complete(cancellationToken);
 
-
         userUpdated.DNI = _aesGcmCryptoService.Decrypt(usuario.DNI!);
         userUpdated.NumeroTelefono = _aesGcmCryptoService.Decrypt(usuario.NumeroTelefono!);
         return userUpdated;
@@ -59,29 +57,6 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
 
         return deletedUser;
     }
-
-    public async Task<int> GetUserIdFromTokenAsync()
-    {
-        string authHeader = _httpContextAccessor.HttpContext!.Request.Headers["Authorization"].ToString();
-        string userId = await CleanTokenAsync(authHeader);
-
-        return int.Parse(userId);
-    }
-    public async Task<string> CleanTokenAsync(string token)
-    {
-        string cleanToken = token.StartsWith("Bearer ") ? token.Substring("Bearer ".Length) : token;
-
-        if (string.IsNullOrWhiteSpace(cleanToken))
-        {
-            throw new Exception("Token nulo o vacío.");
-        }
-
-        string decodedToken = await _tokenService.DecodeToken(cleanToken!);
-
-        return decodedToken;
-    }
-
-    
 
     public async Task<bool> ValidateUserCredentialsToPublishTicket(int userId)
     {
@@ -99,64 +74,5 @@ public class UsuarioService : GenericService<Usuario>, IUsuarioService
         }
 
         return isvalid;
-    }
-
-    public async Task<Usuario> RegisterUserAsync(Usuario usuario)
-    {
-        usuario.Password = _passwordHasher.HashPassword(usuario, usuario.Password);
-
-        var nuevoUsuario = await _unitOfWork.UsuarioRepository.Create(usuario);
-
-        if (nuevoUsuario.Id <= 0)
-        {
-            throw new Exception("El ID del usuario no es válido después de la creación.");
-        }
-
-        var userToken = _tokenService.CreateToken(nuevoUsuario);
-        nuevoUsuario.Token = userToken;
-        await _unitOfWork.UsuarioRepository.StorageToken(usuario.Id, userToken);
-        return nuevoUsuario;
-
-    }
-
-    public async Task<Usuario> AuthenticateAsync(string email, string password)
-    {
-        Usuario userInDb = await _unitOfWork.UsuarioRepository.GetUserByEmail(email);
-
-        PasswordVerificationResult passwordVerification = _passwordHasher.VerifyHashedPassword(userInDb, userInDb.Password, password);
-
-        if (passwordVerification == PasswordVerificationResult.Failed) throw new Exception("Las credenciales no son correctas");
-
-        Usuario user = await _unitOfWork.UsuarioRepository.AuthenticateUser(email, password);
-
-        string token = _tokenService.CreateToken(user);
-        user.Token = token;
-
-        return user;
-    }
-
-    public async Task<bool> ConfirmResetPasswordAsync(bool reset, string newPassword, string userEmail, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var usuario = await _unitOfWork.UsuarioRepository.GetUserByEmail(userEmail);
-
-            if (usuario == null)
-            {
-                return false;
-            }
-
-            usuario.Restablecer = reset;
-            usuario.Password = _passwordHasher.HashPassword(usuario, newPassword);
-
-            await _unitOfWork.UsuarioRepository.Update(usuario.Id, usuario);
-
-            await _unitOfWork.Complete(cancellationToken);
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
     }
 }

@@ -68,7 +68,7 @@ public class ReventaController : ControllerBase
     {
         try
         {
-            int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+            int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
 
             bool validUserCredentials = await _serviceFacade.UsuarioService.ValidateUserCredentialsToPublishTicket(userId);
 
@@ -96,7 +96,7 @@ public class ReventaController : ControllerBase
     [HttpPut("comprar-entrada")]
     public async Task<IActionResult> BuyTicket(BuyEntradaRequestDto buyEntradaRequestDto, CancellationToken cancellationToken)
     {
-        int userId = await _serviceFacade.UsuarioService.GetUserIdFromTokenAsync();
+        int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
 
         Reventa resaleDb = await _serviceFacade.ReventaService.GetResaleByEntradaIdAsync(buyEntradaRequestDto.EntradaId);
 
