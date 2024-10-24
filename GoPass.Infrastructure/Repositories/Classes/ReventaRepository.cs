@@ -13,9 +13,8 @@ public class ReventaRepository : GenericRepository<Reventa>, IReventaRepository
         
     }
 
-    public async Task<Reventa> Publish(Reventa reventa, int vendedorId)
+    public async Task<Reventa> Publish(Reventa reventa)
     {
-        reventa.VendedorId = vendedorId;
         await _dbContext.AddAsync(reventa);
 
         return reventa;

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TicketFaker.API.Data;
+using TicketFaker.API.Mappers;
 using TicketFaker.API.Models;
 
 namespace TicketFaker.API.Controllers;
@@ -37,6 +38,6 @@ public class FakerController : ControllerBase
 
         Ticket? ticket = await _applicationDbContext.Tickets.Where(x => x.CodigoQR == codigoQr).FirstOrDefaultAsync();
 
-        return Ok(ticket);
+        return Ok(ticket!.ToResponseDto());
     }
 }

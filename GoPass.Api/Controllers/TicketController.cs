@@ -7,7 +7,7 @@ using GoPass.Application.Utilities.Mappers;
 using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
 using GoPass.Domain.DTOs.Response;
 using GoPass.Domain.DTOs.Request.PaginationDTOs;
-using GoPass.Application.ServiceFacade;
+using GoPass.Application.Facades.ServiceFacade;
 
 namespace GoPass.API.Controllers;
 

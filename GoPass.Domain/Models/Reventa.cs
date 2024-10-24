@@ -11,5 +11,5 @@ public class Reventa : BaseModel
 
     //Navigation Properties
     public Usuario? Usuario { get; set; }
-    public  Entrada? Entrada { get; set; }
+    public virtual Entrada? Entrada { get; set; }
 }

@@ -5,7 +5,7 @@ namespace GoPass.Application.Services.Interfaces;
 
 public interface IEntradaService : IGenericService<Entrada>
 {
-    Task<Entrada> PublishTicket(PublishEntradaRequestDto publishEntradaRequestDto, int userId, CancellationToken cancellationToken);
+    Task<Entrada> PublishTicketAsync(Entrada entrada, CancellationToken cancellationToken);
     Task<bool> VerifyQrCodeAsync(string qrCode);
     Task<List<Entrada>> GetTicketsInResaleByUserIdAsync(int userId);
 }

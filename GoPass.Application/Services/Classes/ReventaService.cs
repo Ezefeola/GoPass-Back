@@ -15,12 +15,10 @@ public class ReventaService : GenericService<Reventa>, IReventaService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Reventa> PublishTicketAsync(Reventa reventa, int sellerId, CancellationToken cancellationToken)        
+    public async Task<Reventa> PublishResaleAsync(Reventa reventa, int sellerId, CancellationToken cancellationToken)        
     {
-        Reventa resale = await _unitOfWork.ReventaRepository.Publish(reventa, sellerId);
-
-        await _unitOfWork.Complete(cancellationToken);
-
+        reventa.VendedorId = sellerId;
+        Reventa resale = await _unitOfWork.ReventaRepository.Publish(reventa);
         return resale;
     }
 

@@ -13,9 +13,9 @@ using GoPass.Infrastructure.Data;
 using System.Reflection;
 using GoPass.Application.Notifications.Classes;
 using GoPass.Domain.DTOs.Request.NotificationDTOs;
-using GoPass.API.Middlewares;
+//using GoPass.API.Middlewares;
 using GoPass.Infrastructure.UnitOfWork;
-using GoPass.Application.ServiceFacade;
+using GoPass.Application.Facades.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
 using GoPass.Application.Services.Validations.Interfaces;
 using GoPass.Application.Services.Validations.Classes;
@@ -118,6 +118,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IReventaService, ReventaService>();
 builder.Services.AddScoped<IEntradaService, EntradaService>();
+builder.Services.AddScoped<IResaleTicketTransactionService, ResaleTicketTransactionService>();
 builder.Services.AddScoped<ITicketMasterService, TicketSimulatorService>();
 builder.Services.AddScoped<IAesGcmCryptoService, AesGcmCryptoService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
@@ -155,7 +156,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors();
 
-app.UseUserMiddlewares();
+//app.UseUserMiddlewares();
 
 app.UseAuthentication();
 app.UseAuthorization();

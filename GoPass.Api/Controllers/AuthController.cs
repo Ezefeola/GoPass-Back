@@ -1,4 +1,4 @@
-﻿using GoPass.Application.ServiceFacade;
+﻿using GoPass.Application.Facades.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
 using GoPass.Domain.DTOs.Request.AuthRequestDTOs;
 using GoPass.Domain.DTOs.Response.AuthResponseDTOs;
@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
         {
             Usuario userToRegister = registerRequestDto.MapToModel();
 
-            Usuario registeredUser = await _serviceFacade.AuthService.RegisterUserAsync(userToRegister);
+            Usuario registeredUser = await _serviceFacade.AuthService.RegisterUserAsync(userToRegister, cancellationToken);
 
             if (registeredUser is null) BadRequest("El usuario es nulo " + registeredUser);
 

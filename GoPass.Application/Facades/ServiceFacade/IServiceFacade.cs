@@ -1,6 +1,6 @@
 ﻿using GoPass.Application.Services.Interfaces;
 
-namespace GoPass.Application.ServiceFacade;
+namespace GoPass.Application.Facades.ServiceFacade;
 
 public interface IServiceFacade
 {
@@ -15,4 +15,5 @@ public interface IServiceFacade
     public IReventaService ReventaService { get; }
     public ITokenService TokenService { get; }
     public IAuthService AuthService { get; }
+    public IResaleTicketTransactionService ResaleTicketTransactionService { get; }
 }

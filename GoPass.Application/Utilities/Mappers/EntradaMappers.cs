@@ -59,6 +59,21 @@ public static class EntradaMappers
         };
     }
 
+    public static Entrada MapToModel(this Entrada entrada, Entrada verifiedTicket, int userId)
+    {
+        return new Entrada
+        {
+            Address = verifiedTicket.Address,
+            EventDate = verifiedTicket.EventDate,
+            GameName = verifiedTicket.GameName,
+            CodigoQR = verifiedTicket.CodigoQR,
+            Description = verifiedTicket.Description,
+            Image = verifiedTicket.Image,
+            UsuarioId = userId,
+            Verificada = true
+        };
+    }
+
     public static Reventa MapToModel(this BuyEntradaRequestDto buyEntradaRequestDto)
     {
         return new Reventa

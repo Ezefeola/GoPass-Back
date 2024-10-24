@@ -1,4 +1,4 @@
-﻿using GoPass.Application.ServiceFacade;
+﻿using GoPass.Application.Facades.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
 using GoPass.Domain.DTOs.Request.AuthRequestDTOs;
 using GoPass.Domain.DTOs.Request.UserRequestDTOs;

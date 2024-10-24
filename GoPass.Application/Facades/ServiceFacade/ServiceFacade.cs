@@ -1,6 +1,6 @@
 ﻿using GoPass.Application.Services.Interfaces;
 
-namespace GoPass.Application.ServiceFacade;
+namespace GoPass.Application.Facades.ServiceFacade;
 
 public class ServiceFacade : IServiceFacade
 {
@@ -15,6 +15,8 @@ public class ServiceFacade : IServiceFacade
     public IReventaService ReventaService { get; }
     public ITokenService TokenService { get; }
     public IAuthService AuthService { get; }
+    public IResaleTicketTransactionService ResaleTicketTransactionService { get; }
+
     public ServiceFacade(IVonageSmsService vonageSmsService,
         IUsuarioService usuarioService,
         ITicketMasterService ticketMasterService,
@@ -25,7 +27,8 @@ public class ServiceFacade : IServiceFacade
         ITemplateService templateService,
         IReventaService reventaService,
         ITokenService tokenService,
-        IAuthService authService
+        IAuthService authService,
+        IResaleTicketTransactionService resaleTicketTransactionService
         )
     {
         VonageSmsService = vonageSmsService;
@@ -39,5 +42,6 @@ public class ServiceFacade : IServiceFacade
         ReventaService = reventaService;
         TokenService = tokenService;
         AuthService = authService;
+        ResaleTicketTransactionService = resaleTicketTransactionService;
     }
 }

@@ -1,6 +1,4 @@
 ﻿using GoPass.Application.Services.Interfaces;
-using GoPass.Application.Utilities.Mappers;
-using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
 using GoPass.Domain.Models;
 using GoPass.Infrastructure.UnitOfWork;
 
@@ -14,18 +12,9 @@ public class EntradaService : GenericService<Entrada>, IEntradaService
     {
         _unitOfWork = unitOfWork;
     }
-
-    public async Task<Entrada> PublishTicket(PublishEntradaRequestDto publishEntradaRequestDto, int userId, CancellationToken cancellationToken)
+    public async Task<Entrada> PublishTicketAsync(Entrada entrada, CancellationToken cancellationToken)
     {
-
-        Entrada entradaExistingFaker = publishEntradaRequestDto.MapToModel();
-        Entrada entradaToCreate = publishEntradaRequestDto.MapToModel(entradaExistingFaker, userId);
-
-        await _unitOfWork.EntradaRepository.Create(entradaToCreate);
-
-        await _unitOfWork.Complete(cancellationToken);
-
-        return entradaToCreate;
+        return await _unitOfWork.EntradaRepository.Create(entrada);
     }
 
     public async Task<bool> VerifyQrCodeAsync(string qrCode)

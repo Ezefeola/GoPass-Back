@@ -25,21 +25,23 @@ namespace GoPass.Application.Services.Classes
             _tokenService = tokenService;
             _passwordHasher = new PasswordHasher<Usuario>();
         }
-        public async Task<Usuario> RegisterUserAsync(Usuario usuario)
+        public async Task<Usuario> RegisterUserAsync(Usuario usuario, CancellationToken cancellationToken)
         {
             usuario.Password = _passwordHasher.HashPassword(usuario, usuario.Password);
 
-            var nuevoUsuario = await _unitOfWork.UsuarioRepository.Create(usuario);
+            Usuario newUser = await _unitOfWork.UsuarioRepository.Create(usuario);
+            await _unitOfWork.Complete(cancellationToken);
 
-            if (nuevoUsuario.Id <= 0)
+            if (newUser.Id <= 0)
             {
                 throw new Exception("El ID del usuario no es válido después de la creación.");
             }
 
-            var userToken = _tokenService.CreateToken(nuevoUsuario);
-            nuevoUsuario.Token = userToken;
+            var userToken = _tokenService.CreateToken(newUser);
+            newUser.Token = userToken;
             await _unitOfWork.UsuarioRepository.StorageToken(usuario.Id, userToken);
-            return nuevoUsuario;
+
+            return newUser;
 
         }
 

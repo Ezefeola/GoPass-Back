@@ -7,7 +7,9 @@ using GoPass.Domain.Models;
 using GoPass.Domain.DTOs.Response.AuthResponseDTOs;
 using GoPass.Domain.DTOs.Request.NotificationDTOs;
 using GoPass.Application.Notifications.Classes;
-using GoPass.Application.ServiceFacade;
+using GoPass.Application.Facades.ServiceFacade;
+using Org.BouncyCastle.Asn1.X509.Qualified;
+using System.Diagnostics;
 
 namespace GoPass.API.Controllers;
 
@@ -16,10 +18,12 @@ namespace GoPass.API.Controllers;
 public class ReventaController : ControllerBase
 {
     private readonly IServiceFacade _serviceFacade;
+    private readonly ICustomAutoMapper _customAutoMapper;
 
-    public ReventaController(IServiceFacade serviceFacade)
+    public ReventaController(IServiceFacade serviceFacade, ICustomAutoMapper customAutoMapper)
     {
         _serviceFacade = serviceFacade;
+        _customAutoMapper = customAutoMapper;
     }
 
     [Authorize]
@@ -75,14 +79,13 @@ public class ReventaController : ControllerBase
             if (validUserCredentials == false) return BadRequest("Debe tener todas sus credenciales en regla para poder publicar una entrada");
 
             Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(publishReventaRequestDto.CodigoQR);
-            PublishEntradaRequestDto existingTicketInFaker = verifiedTicket.MapToRequestDto();
+            verifiedTicket.Id = 0;
 
-            Entrada createdTicket = await _serviceFacade.EntradaService.PublishTicket(existingTicketInFaker, userId, cancellationToken);
-
-            Reventa reventaToPublish = publishReventaRequestDto.MapToModel();
-            reventaToPublish.EntradaId = createdTicket.Id;
-
-            Reventa publishedReventa = await _serviceFacade.ReventaService.PublishTicketAsync(reventaToPublish, userId, cancellationToken);
+            var stopwatch = Stopwatch.StartNew();
+            Reventa reventaToPublish = _customAutoMapper.Map<PublishReventaRequestDto, Reventa>(publishReventaRequestDto);
+            stopwatch.Stop();
+            Console.WriteLine("El mapeo de publishReventaRequestDto a Reventa en ReventaController tomo:" + stopwatch.ElapsedMilliseconds);
+            Reventa publishedReventa = await _serviceFacade.ResaleTicketTransactionService.PublishResaleTicketAsync(verifiedTicket, reventaToPublish, userId, cancellationToken);
 
             return Ok(publishedReventa.MapToResponseDto());
         }
