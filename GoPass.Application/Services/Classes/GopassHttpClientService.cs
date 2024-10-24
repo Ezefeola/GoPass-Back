@@ -1,4 +1,7 @@
 ﻿using GoPass.Application.Services.Interfaces;
+using GoPass.Application.Utilities.Mappers;
+using GoPass.Domain.DTOs.Response;
+using GoPass.Domain.DTOs.Response.TicketFakerResponseDTOs;
 using GoPass.Domain.Models;
 using System.Text.Json;
 
@@ -7,10 +10,12 @@ namespace GoPass.Application.Services.Classes;
 public class GopassHttpClientService : IGopassHttpClientService
 {
     private readonly HttpClient _httpClient;
+    private readonly ICustomAutoMapper customAutoMapper;
 
-    public GopassHttpClientService(HttpClient httpClient)
+    public GopassHttpClientService(HttpClient httpClient, ICustomAutoMapper customAutoMapper)
     {
         _httpClient = httpClient;
+        this.customAutoMapper = customAutoMapper;
     }
 
     public async Task<Entrada> GetTicketByQrAsync(string qrCode)
@@ -20,11 +25,11 @@ public class GopassHttpClientService : IGopassHttpClientService
         response.EnsureSuccessStatusCode();
 
         var responseContent = await response.Content.ReadAsStringAsync();
-        var entrada = JsonSerializer.Deserialize<Entrada>(responseContent, new JsonSerializerOptions
+        var entrada = JsonSerializer.Deserialize<TicketInFakerResponseDto>(responseContent, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true // Esto hace que coincidan propiedades de forma insensible a mayúsculas/minúsculas
         });
-
-        return entrada;
+        var responseDto = customAutoMapper.Map<TicketInFakerResponseDto, Entrada>(entrada!);
+        return responseDto!;
     }
 }

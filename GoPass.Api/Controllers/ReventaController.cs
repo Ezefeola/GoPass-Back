@@ -10,6 +10,7 @@ using GoPass.Application.Notifications.Classes;
 using GoPass.Application.Facades.ServiceFacade;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 using System.Diagnostics;
+using GoPass.Domain.DTOs.Response;
 
 namespace GoPass.API.Controllers;
 
@@ -50,8 +51,8 @@ public class ReventaController : ControllerBase
     public async Task<IActionResult> GetTicketFromTicketFaker(string codigoQr)
     {
         Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(codigoQr);
-
-        return Ok(verifiedTicket);
+        var entradaResponse = _customAutoMapper.Map<Entrada, EntradaResponseDto>(verifiedTicket!);
+        return Ok(entradaResponse);
     }
 
     [HttpGet("validate-ticket-from-faker")]
@@ -79,7 +80,6 @@ public class ReventaController : ControllerBase
             if (validUserCredentials == false) return BadRequest("Debe tener todas sus credenciales en regla para poder publicar una entrada");
 
             Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(publishReventaRequestDto.CodigoQR);
-            verifiedTicket.Id = 0;
 
             var stopwatch = Stopwatch.StartNew();
             Reventa reventaToPublish = _customAutoMapper.Map<PublishReventaRequestDto, Reventa>(publishReventaRequestDto);

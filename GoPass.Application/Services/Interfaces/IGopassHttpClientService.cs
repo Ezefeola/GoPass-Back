@@ -1,4 +1,5 @@
-﻿using GoPass.Domain.Models;
+﻿using GoPass.Domain.DTOs.Response;
+using GoPass.Domain.Models;
 
 namespace GoPass.Application.Services.Interfaces;
 
