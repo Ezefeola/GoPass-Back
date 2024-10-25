@@ -1,11 +1,6 @@
 ﻿using GoPass.Application.Services.Interfaces;
-using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
 using GoPass.Domain.Models;
 using GoPass.Infrastructure.UnitOfWork;
-using System.Threading;
-using Vonage.Common.Monads;
-using Vonage.NumberInsights;
-using Vonage.Users;
 
 namespace GoPass.Application.Services.Classes
 {
@@ -24,7 +19,6 @@ namespace GoPass.Application.Services.Classes
 
         public async Task<Reventa> PublishResaleTicketAsync(Entrada entrada, Reventa reventa, int userId, CancellationToken cancellationToken)
         {
-
             using var Transaction = await _unitOfWork.BeginTransaction(cancellationToken);
             try
             {
@@ -36,7 +30,6 @@ namespace GoPass.Application.Services.Classes
 
                 await _unitOfWork.Complete(cancellationToken);
                 await Transaction.CommitAsync(cancellationToken);
-
 
                 return reventaCreated;
             }

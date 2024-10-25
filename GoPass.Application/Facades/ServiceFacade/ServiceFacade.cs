@@ -16,6 +16,7 @@ public class ServiceFacade : IServiceFacade
     public ITokenService TokenService { get; }
     public IAuthService AuthService { get; }
     public IResaleTicketTransactionService ResaleTicketTransactionService { get; }
+    public INotificationService NotificationService { get; }
 
     public ServiceFacade(IVonageSmsService vonageSmsService,
         IUsuarioService usuarioService,
@@ -28,7 +29,8 @@ public class ServiceFacade : IServiceFacade
         IReventaService reventaService,
         ITokenService tokenService,
         IAuthService authService,
-        IResaleTicketTransactionService resaleTicketTransactionService
+        IResaleTicketTransactionService resaleTicketTransactionService,
+        INotificationService notificationService
         )
     {
         VonageSmsService = vonageSmsService;
@@ -43,5 +45,6 @@ public class ServiceFacade : IServiceFacade
         TokenService = tokenService;
         AuthService = authService;
         ResaleTicketTransactionService = resaleTicketTransactionService;
+        NotificationService = notificationService;
     }
 }

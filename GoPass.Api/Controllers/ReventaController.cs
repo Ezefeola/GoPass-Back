@@ -5,10 +5,7 @@ using GoPass.Domain.DTOs.Request.ReventaRequestDTOs;
 using GoPass.Domain.DTOs.Request.PaginationDTOs;
 using GoPass.Domain.Models;
 using GoPass.Domain.DTOs.Response.AuthResponseDTOs;
-using GoPass.Domain.DTOs.Request.NotificationDTOs;
-using GoPass.Application.Notifications.Classes;
 using GoPass.Application.Facades.ServiceFacade;
-using Org.BouncyCastle.Asn1.X509.Qualified;
 using System.Diagnostics;
 using GoPass.Domain.DTOs.Response;
 
@@ -21,7 +18,9 @@ public class ReventaController : ControllerBase
     private readonly IServiceFacade _serviceFacade;
     private readonly ICustomAutoMapper _customAutoMapper;
 
-    public ReventaController(IServiceFacade serviceFacade, ICustomAutoMapper customAutoMapper)
+    public ReventaController(IServiceFacade serviceFacade, 
+            ICustomAutoMapper customAutoMapper
+        )
     {
         _serviceFacade = serviceFacade;
         _customAutoMapper = customAutoMapper;
@@ -51,7 +50,7 @@ public class ReventaController : ControllerBase
     public async Task<IActionResult> GetTicketFromTicketFaker(string codigoQr)
     {
         Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(codigoQr);
-        var entradaResponse = _customAutoMapper.Map<Entrada, EntradaResponseDto>(verifiedTicket!);
+        EntradaResponseDto entradaResponse = _customAutoMapper.Map<Entrada, EntradaResponseDto>(verifiedTicket!);
         return Ok(entradaResponse);
     }
 
@@ -80,7 +79,7 @@ public class ReventaController : ControllerBase
             if (validUserCredentials == false) return BadRequest("Debe tener todas sus credenciales en regla para poder publicar una entrada");
 
             Entrada verifiedTicket = await _serviceFacade.GopassHttpClientService.GetTicketByQrAsync(publishReventaRequestDto.CodigoQR);
-
+            
             var stopwatch = Stopwatch.StartNew();
             Reventa reventaToPublish = _customAutoMapper.Map<PublishReventaRequestDto, Reventa>(publishReventaRequestDto);
             stopwatch.Stop();
@@ -95,6 +94,57 @@ public class ReventaController : ControllerBase
         }
     }
 
+    //[Authorize]
+    //[HttpPut("comprar-entrada")]
+    //public async Task<IActionResult> BuyTicket(BuyEntradaRequestDto buyEntradaRequestDto, CancellationToken cancellationToken)
+    //{
+    //    int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
+
+    //    Reventa resaleDb = await _serviceFacade.ReventaService.GetResaleByEntradaIdAsync(buyEntradaRequestDto.EntradaId);
+
+    //    if(userId == resaleDb.VendedorId)
+    //    {
+    //        return BadRequest("Esta intentando comprar su propia entrada, lo cual no tiene sentido");
+    //    }
+
+    //    Entrada ticketDb = await _serviceFacade.EntradaService.GetByIdAsync(buyEntradaRequestDto.EntradaId);
+    //    HistorialCompraVenta publishReventaBuyer = await _serviceFacade.ReventaService.BuyTicketAsync(resaleDb.Id, userId, cancellationToken);
+
+    //    Usuario buyerData = await _serviceFacade.UsuarioService.GetByIdAsync(publishReventaBuyer.CompradorId);
+    //    Usuario sellerData = await _serviceFacade.UsuarioService.GetByIdAsync(publishReventaBuyer.VendedorId);
+       
+
+    //    Subject<NotificationEmailRequestDto> purchaseNotifier = new();
+    //    BuyerEmailNotificationObserver compradorObserver = new BuyerEmailNotificationObserver(_serviceFacade.EmailService);
+
+    //    purchaseNotifier.Attach(compradorObserver);
+
+    //    NotificationEmailRequestDto buyerNotificationEmailRequestDto = new NotificationEmailRequestDto
+    //    {
+    //        UserName = buyerData.Nombre!,
+    //        To = buyerData.Email,
+    //        TicketQrCode = ticketDb.CodigoQR
+
+    //    };
+    //    await purchaseNotifier.Notify(buyerNotificationEmailRequestDto); // Comprador
+
+    //    Subject<NotificationEmailRequestDto> sellerNotifier = new();
+    //    SellerEmailNotificationObserver sellerObserver = new SellerEmailNotificationObserver(_serviceFacade.EmailService);
+
+    //    sellerNotifier.Attach(sellerObserver);
+
+    //    NotificationEmailRequestDto sellerNotificationEmailRequestDto = new NotificationEmailRequestDto
+    //    {
+    //        UserName = sellerData.Nombre!,
+    //        To = sellerData.Email,
+    //        TicketQrCode = ticketDb.CodigoQR
+
+    //    };
+    //    await sellerNotifier.Notify(sellerNotificationEmailRequestDto); // Vendedor
+
+    //    return Ok(publishReventaBuyer);
+    //}
+
     [Authorize]
     [HttpPut("comprar-entrada")]
     public async Task<IActionResult> BuyTicket(BuyEntradaRequestDto buyEntradaRequestDto, CancellationToken cancellationToken)
@@ -103,46 +153,16 @@ public class ReventaController : ControllerBase
 
         Reventa resaleDb = await _serviceFacade.ReventaService.GetResaleByEntradaIdAsync(buyEntradaRequestDto.EntradaId);
 
-        if(userId == resaleDb.VendedorId)
+        if (userId == resaleDb.VendedorId)
         {
             return BadRequest("Esta intentando comprar su propia entrada, lo cual no tiene sentido");
         }
 
         Entrada ticketDb = await _serviceFacade.EntradaService.GetByIdAsync(buyEntradaRequestDto.EntradaId);
-        HistorialCompraVenta publishReventaBuyer = await _serviceFacade.ReventaService.BuyTicketAsync(resaleDb.Id, userId, cancellationToken);
+        HistorialCompraVenta buyedTicketData = await _serviceFacade.ReventaService.BuyTicketAsync(resaleDb.Id, userId, cancellationToken);
 
-        Usuario buyerData = await _serviceFacade.UsuarioService.GetByIdAsync(publishReventaBuyer.CompradorId);
-        Usuario sellerData = await _serviceFacade.UsuarioService.GetByIdAsync(publishReventaBuyer.VendedorId);
-       
+        await _serviceFacade.NotificationService.NotifyBuyerAndSellerAsync(buyedTicketData, ticketDb, cancellationToken);
 
-        Subject<NotificationEmailRequestDto> purchaseNotifier = new();
-        BuyerEmailNotificationObserver compradorObserver = new BuyerEmailNotificationObserver(_serviceFacade.EmailService);
-
-        purchaseNotifier.Attach(compradorObserver);
-
-        NotificationEmailRequestDto buyerNotificationEmailRequestDto = new NotificationEmailRequestDto
-        {
-            UserName = buyerData.Nombre!,
-            To = buyerData.Email,
-            TicketQrCode = ticketDb.CodigoQR
-
-        };
-        await purchaseNotifier.Notify(buyerNotificationEmailRequestDto); // Comprador
-
-        Subject<NotificationEmailRequestDto> sellerNotifier = new();
-        SellerEmailNotificationObserver sellerObserver = new SellerEmailNotificationObserver(_serviceFacade.EmailService);
-
-        sellerNotifier.Attach(sellerObserver);
-
-        NotificationEmailRequestDto sellerNotificationEmailRequestDto = new NotificationEmailRequestDto
-        {
-            UserName = sellerData.Nombre!,
-            To = sellerData.Email,
-            TicketQrCode = ticketDb.CodigoQR
-
-        };
-        await sellerNotifier.Notify(sellerNotificationEmailRequestDto); // Vendedor
-
-        return Ok(publishReventaBuyer);
+        return Ok(buyedTicketData);
     }
 }

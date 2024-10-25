@@ -14,7 +14,7 @@ namespace GoPass.API.Controllers;
 public class UsuarioController : ControllerBase
 {
     private readonly ILogger<UsuarioController> _logger;
-    private readonly ICustomAutoMapper customAutoMapper;
+    private readonly ICustomAutoMapper _customAutoMapper;
     private readonly IServiceFacade _serviceFacade;
 
     public UsuarioController(ILogger<UsuarioController> logger, 
@@ -23,7 +23,7 @@ public class UsuarioController : ControllerBase
         )
     {
         _logger = logger;
-        this.customAutoMapper = customAutoMapper;
+        _customAutoMapper = customAutoMapper;
         _serviceFacade = serviceFacade;
     }
 
@@ -53,7 +53,7 @@ public class UsuarioController : ControllerBase
 
             //Usuario credentialsToModify = modifyUsuarioRequestDto.MapToModel(dbExistingUserCredentials);
             var stopwatch = Stopwatch.StartNew();
-            Usuario credentialsToModify = customAutoMapper.Map(modifyUsuarioRequestDto, dbExistingUserCredentials);
+            Usuario credentialsToModify = _customAutoMapper.Map(modifyUsuarioRequestDto, dbExistingUserCredentials);
             stopwatch.Stop();
             Console.WriteLine($"El mapeo tomo: {stopwatch.ElapsedMilliseconds} ms");
 
@@ -87,10 +87,6 @@ public class UsuarioController : ControllerBase
     {
         int userId = await _serviceFacade.AuthService.GetUserIdFromTokenAsync();
         Usuario dbExistingUserCredentials = await _serviceFacade.UsuarioService.GetByIdAsync(userId);
-
-        //bool code = _serviceFacade.VonageSmsService.VerifyCode(verifyVonageCodeRequestDto.VonageCode);
-
-        //if (code == false) return BadRequest("El codigo ingresado no coincide con el que se le envio por sms.");
 
         dbExistingUserCredentials.VerificadoSms = true;
         Usuario modifiedCredentials = await _serviceFacade.UsuarioService.UpdateAsync(userId, dbExistingUserCredentials, cancellationToken);

@@ -13,7 +13,6 @@ using GoPass.Infrastructure.Data;
 using System.Reflection;
 using GoPass.Application.Notifications.Classes;
 using GoPass.Domain.DTOs.Request.NotificationDTOs;
-//using GoPass.API.Middlewares;
 using GoPass.Infrastructure.UnitOfWork;
 using GoPass.Application.Facades.ServiceFacade;
 using GoPass.Application.Utilities.Mappers;
@@ -124,6 +123,7 @@ builder.Services.AddScoped<IAesGcmCryptoService, AesGcmCryptoService>();
 builder.Services.AddScoped<ITemplateService, TemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IServiceFacade, ServiceFacade>();
 
 builder.Services.AddSingleton<IVonageSmsService, VonageSmsService>();
@@ -156,7 +156,6 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors();
 
-//app.UseUserMiddlewares();
 
 app.UseAuthentication();
 app.UseAuthorization();

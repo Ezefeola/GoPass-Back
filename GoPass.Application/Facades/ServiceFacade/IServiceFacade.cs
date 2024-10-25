@@ -16,4 +16,5 @@ public interface IServiceFacade
     public ITokenService TokenService { get; }
     public IAuthService AuthService { get; }
     public IResaleTicketTransactionService ResaleTicketTransactionService { get; }
+    public INotificationService NotificationService { get; }
 }
