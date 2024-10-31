@@ -1,0 +1,11 @@
+Solo una entrada por cada usuario? = repuesta: Usuario puede tener varias entradas
+
+Solo una entrada para una reventa por usuario? = repuesta: Usuario puede tener revender varias entradas
+
+Crear la entrada primero? de donde saco el CodigoQR? se tipea? se crea una imagen? (soluciones) = respuesta:
+el qr es un UUID
+
+no hay un usuario con muchas entradas en reventa? = respuesta: si hay, respuesto arriba.
+
+
+

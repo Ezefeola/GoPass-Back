@@ -1,0 +1,5 @@
+Add-Migration Initial -Project GoPass.Infrastructure -StartupProject GoPass.API
+
+Update-Database -Project GoPass.Infrastructure -StartupProject GoPass.API
+
+dotnet ef database update -Project GoPass.Infrastructure -StartupProject GoPass.API

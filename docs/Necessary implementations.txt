@@ -1,0 +1,36 @@
+Entrada Model:
+
+- Nombre partido
+
+- Descripcion
+
+- Fecha evento
+
+- Direccion del evento
+
+- Imagen
+
+------------------------
+Usuario Model:
+
+- Imagen
+- Ciudad
+- Pais
+---------------------------------------
+Reventa Model
+
+- Detalle Reventa : Explicacion del por que se revende la entrada
+
+--------------------------------------
+Usuario Controller
+
+- GetCredentials
+-----------------------------
+
+ReventaController
+
+- Entrada nombre evento
+- Entrada fecha
+- Entrada direccion evento
+- Entrada Detalle entrada
+- Verificar entrada por qr tiene que llamar al metodo y mostrar el qr.

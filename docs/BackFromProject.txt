@@ -1,0 +1,59 @@
+Tool
+
+[Browsable(false)]
+public bool BrandHasValue
+{
+    get
+    {
+        return !string.IsNullOrEmpty(Brand);
+    }
+}
+
+-------------------------
+
+ToolController
+
+public class ToolController : ObjectViewController<ListView, Tool>
+{
+    SimpleAction JustSayHiForNowAction;
+    SimpleAction ShowHighestRentalPriceAction;
+    public ToolController()
+    {
+        JustSayHiForNowAction = new SimpleAction(this, "SayHi", PredefinedCategory.View)
+        {
+            Caption = "Say Hi",
+            ImageName = "Action_Clear"
+        };
+        JustSayHiForNowAction.Execute += JustSayHiForNowAction_Execute;
+        ShowHighestRentalPriceAction = new SimpleAction(this, "HighestPrice", PredefinedCategory.View)
+        {
+            Caption = "Show HighestPrice",
+            ImageName = "Action_Clear"
+        };
+        ShowHighestRentalPriceAction.Execute += ShowHighestRentalPriceAction_Execute;
+    }
+    private void ShowHighestRentalPriceAction_Execute(object sender, SimpleActionExecuteEventArgs e)
+    {
+        //decimal maxPurchasePrice = ObjectSpace.GetObjects<Tool>().Max(t => t.PurchasePrice);
+        //var myMaxPPT = ObjectSpace.FindObject<Tool>(new BinaryOperator("PurchasePrice",maxPurchasePrice));
+        //Tool toolWithHighestPrice = CriteriaOperator.Parse("Tools.Sum(PurchasePrice) = ?", highestToolPrice)
+        var mostExpensiveTool = ObjectSpace.GetObjects<Tool>().OrderByDescending(tool => tool.PurchasePrice).FirstOrDefault();
+        MessageOptions messageOptions = new()
+        {
+            Duration = 3000,
+            Message = $"The most expensive Tool is: {mostExpensiveTool.Category.Name} 's {mostExpensiveTool.Brand} which purchase price was: {mostExpensiveTool.PurchasePrice}",
+            Type = InformationType.Info
+        };
+        Application.ShowViewStrategy.ShowMessage(messageOptions);
+    }
+    private void JustSayHiForNowAction_Execute(object sender, SimpleActionExecuteEventArgs e)
+    {
+        MessageOptions messageOptions = new()
+        {
+            Duration = 3000,
+            Message = $"Hello World!",
+            Type = InformationType.Success
+        };
+        Application.ShowViewStrategy.ShowMessage(messageOptions);
+    }
+}

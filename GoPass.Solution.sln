@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoPass.Api", "GoPass.Api\GoPass.Api.csproj", "{DCC58723-A286-4B8D-A1A0-4027FFCC2C55}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoPass.Infrastructure", "GoPass.Infrastructure\GoPass.Infrastructure.csproj", "{F2106527-DFE0-4A73-8C62-A850C3A78164}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoPass.Application", "GoPass.Application\GoPass.Application.csproj", "{C30B24A4-1DAE-4A45-9DBC-D8330B26F507}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoPass.Domain", "GoPass.Domain\GoPass.Domain.csproj", "{339A7801-91BA-4A79-B0DF-24EC10A7D604}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFacker.Api", "TicketFacker.Api\TicketFacker.Api.csproj", "{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoPass.ExternalIntegrations", "GoPass.ExternalIntegrations\GoPass.ExternalIntegrations.csproj", "{FDA3697B-C068-4707-8885-1CCE9075B3DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCC58723-A286-4B8D-A1A0-4027FFCC2C55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCC58723-A286-4B8D-A1A0-4027FFCC2C55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCC58723-A286-4B8D-A1A0-4027FFCC2C55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCC58723-A286-4B8D-A1A0-4027FFCC2C55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2106527-DFE0-4A73-8C62-A850C3A78164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2106527-DFE0-4A73-8C62-A850C3A78164}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2106527-DFE0-4A73-8C62-A850C3A78164}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2106527-DFE0-4A73-8C62-A850C3A78164}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C30B24A4-1DAE-4A45-9DBC-D8330B26F507}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C30B24A4-1DAE-4A45-9DBC-D8330B26F507}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C30B24A4-1DAE-4A45-9DBC-D8330B26F507}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C30B24A4-1DAE-4A45-9DBC-D8330B26F507}.Release|Any CPU.Build.0 = Release|Any CPU
+		{339A7801-91BA-4A79-B0DF-24EC10A7D604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{339A7801-91BA-4A79-B0DF-24EC10A7D604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{339A7801-91BA-4A79-B0DF-24EC10A7D604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{339A7801-91BA-4A79-B0DF-24EC10A7D604}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A1D89CAA-A866-497C-AE03-587DA33EA744}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,9 @@
+1. Creo el razor
+
+2. Genero un model. type que va hacia el razor
+
+3. Creo el propertyEditor
+
+4. Implementar en clase con el editorAlias
+
+prop editor purchase date mostrar calendar de blazor
