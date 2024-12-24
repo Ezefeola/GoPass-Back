@@ -29,9 +29,9 @@ public class UnitOfWork : IUnitOfWork
         UserRepository = usuarioRepository;
     }
 
-    public async Task<int> Complete(CancellationToken cacellationToken)
+    public async Task<int> Complete(CancellationToken cancellationToken)
     {
-        return await _dbContext.SaveChangesAsync(cacellationToken);
+        return await _dbContext.SaveChangesAsync(cancellationToken);
     }
     public void Dispose()
     {

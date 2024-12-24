@@ -45,8 +45,6 @@ public class UserController : ControllerBase
     [HttpPut("modify-user-credentials")]
     public async Task<IActionResult> ModifyUserCredentials(ModifyUsuarioRequestDto modifyUsuarioRequestDto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
         try
         {
             int userId = _serviceFacade.AuthService.GetUserIdFromToken();

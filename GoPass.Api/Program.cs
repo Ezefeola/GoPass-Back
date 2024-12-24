@@ -20,7 +20,6 @@ using GoPass.Application.Services.Validations.Classes;
 using GoPass.API.Middlewares;
 using GoPass.Application.Utilities.Assemblers.Interfaces;
 using GoPass.Application.Utilities.Assemblers.Classes;
-using GoPass.ExternalIntegrations.Payments;
 using GoPass.ExternalIntegrations.Payments.Stripe;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -5,7 +5,6 @@ using GoPass.Domain.DTOs.Response.AuthResponseDTOs;
 using GoPass.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace GoPass.API.Controllers;
 
@@ -23,8 +22,6 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
         try
         {
             RegisterResponseDto registeredUser = await _serviceFacade.AuthService.RegisterUserAsync(registerRequestDto, cancellationToken);
@@ -54,8 +51,6 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
         try
         {
             LoginResponseDto loginResponseDto = await _serviceFacade.AuthService.AuthenticateAsync(loginRequestDto);
@@ -108,7 +103,6 @@ public class AuthController : ControllerBase
     [HttpPost("solicitar-restablecimiento")]
     public async Task<IActionResult> SolicitarRestablecimiento([FromBody] PasswordResetRequestDto passwordResetRequestDto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
         try
         {
             User usuario = await _serviceFacade.UserService.GetUserByEmailAsync(passwordResetRequestDto.Email);
@@ -154,9 +148,6 @@ public class AuthController : ControllerBase
     [HttpPost("restablecer-actualizar")]
     public async Task<IActionResult> RestablecerActualizar([FromBody] ConfirmPasswordResetRequestDto confirmPasswordResetRequestDto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         try
         {
             var usuario = await _serviceFacade.UserService.GetUserByEmailAsync(confirmPasswordResetRequestDto.Email);

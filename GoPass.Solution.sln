@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoPass.Domain", "GoPass.Dom
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFacker.Api", "TicketFacker.Api\TicketFacker.Api.csproj", "{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoPass.ExternalIntegrations", "GoPass.ExternalIntegrations\GoPass.ExternalIntegrations.csproj", "{FDA3697B-C068-4707-8885-1CCE9075B3DC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08D7262A-57F5-40A0-BBCE-D48D9DE8A9DE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FDA3697B-C068-4707-8885-1CCE9075B3DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
